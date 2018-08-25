@@ -1,1 +1,699 @@
-# here
+---
+title: "Capstone project"
+author: "Sakshi"
+date: '2018-06-09'
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+#Installing essential packages and libraries
+```{r cars, echo=FALSE}
+install.packages("tidyverse")
+install.packages("tidytext")
+install.packages("tidyr")
+library(dplyr)
+library(tidytext)
+library(tidyr)
+library(ggplot2)
+library(lubridate)
+library(plyr)
+library(tidytext)
+library(tidyr)
+library(magrittr)
+library(sentimentr)
+#rm(list = ls())
+```
+
+#Importing csv files into dataframes
+```{r, echo=FALSE}
+articles_jan_2017 <- read.csv("/Users/sakshi.gupta/Downloads/nyt-comments/ArticlesJan2017.csv", header = TRUE, stringsAsFactors = FALSE)
+comments_jan_2017 <- read.csv("/Users/sakshi.gupta/Downloads/nyt-comments/CommentsJan2017.csv", header = TRUE, stringsAsFactors = FALSE )
+articles_jan_2018 <- read.csv("/Users/sakshi.gupta/Downloads/nyt-comments/ArticlesJan2018.csv", header = TRUE, stringsAsFactors = FALSE )
+comments_jan_2018 <- read.csv("/Users/sakshi.gupta/Downloads/nyt-comments/CommentsJan2018.csv", header = TRUE, stringsAsFactors = FALSE )
+articles_mar_2018 <- read.csv("/Users/sakshi.gupta/Downloads/nyt-comments/ArticlesMarch2018.csv", header = TRUE, stringsAsFactors = FALSE )
+comments_mar_2018 <- read.csv("/Users/sakshi.gupta/Downloads/nyt-comments/CommentsMarch2018.csv", header = TRUE, stringsAsFactors = FALSE )
+articles_mar_2017 <- read.csv("/Users/sakshi.gupta/Downloads/nyt-comments/ArticlesMarch2017.csv", header = TRUE, stringsAsFactors = FALSE )
+comments_mar_2017 <- read.csv("/Users/sakshi.gupta/Downloads/nyt-comments/CommentsMarch2017.csv", header = TRUE, stringsAsFactors = FALSE )
+articles_feb_2017 <- read.csv("/Users/sakshi.gupta/Downloads/nyt-comments/ArticlesFeb2017.csv", header = TRUE, stringsAsFactors = FALSE )
+comments_feb_2017 <- read.csv("/Users/sakshi.gupta/Downloads/nyt-comments/CommentsFeb2017.csv", header = TRUE, stringsAsFactors = FALSE )
+articles_feb_2018 <- read.csv("/Users/sakshi.gupta/Downloads/nyt-comments/ArticlesFeb2018.csv", header = TRUE, stringsAsFactors = FALSE )
+comments_feb_2018 <- read.csv("/Users/sakshi.gupta/Downloads/nyt-comments/CommentsFeb2018.csv", header = TRUE, stringsAsFactors = FALSE )
+articles_apr_2017 <- read.csv("/Users/sakshi.gupta/Downloads/nyt-comments/ArticlesApril2017.csv", header = TRUE, stringsAsFactors = FALSE )
+comments_apr_2017 <- read.csv("/Users/sakshi.gupta/Downloads/nyt-comments/CommentsApril2017.csv", header = TRUE, stringsAsFactors = FALSE )
+articles_apr_2018 <- read.csv("/Users/sakshi.gupta/Downloads/nyt-comments/ArticlesApril2018.csv", header = TRUE, stringsAsFactors = FALSE )
+comments_apr_2018 <- read.csv("/Users/sakshi.gupta/Downloads/nyt-comments/CommentsApril2018.csv", header = TRUE, stringsAsFactors = FALSE )
+articles_may_2017 <- read.csv("/Users/sakshi.gupta/Downloads/nyt-comments/ArticlesMay2017.csv", header = TRUE, stringsAsFactors = FALSE )
+comments_may_2017 <- read.csv("/Users/sakshi.gupta/Downloads/nyt-comments/CommentsMay2017.csv", header = TRUE, stringsAsFactors = FALSE )
+```
+
+#Data snapshot
+```{r "", echo=FALSE}
+head(articles_jan_2017)
+head(comments_jan_2017)
+```
+
+#Pre-processig dataframes to combine data
+```{r "", echo=FALSE}
+articles_apr_2017[,1] <- NULL
+articles_jan_2017[,2] <- NULL
+articles_feb_2017[,2] <- NULL
+articles_mar_2017[,1] <- NULL 
+articles_may_2017[,1] <- NULL
+articles_jan_2018[,1] <- NULL
+articles_mar_2018 <- articles_mar_2018[,c(1, 15, 2:14)]
+articles_jan_2017 <- articles_jan_2017[,c(1, 15, 2:14)]
+articles_feb_2018 <- articles_feb_2018[,c(1, 15, 2:14)]
+articles_feb_2017 <- articles_feb_2017[,c(1, 15, 2:14)]
+```
+
+#Checking compatibility of dataframes to be combined
+```{r "", echo=FALSE}
+setdiff(colnames(articles_jan_2017), colnames(articles_jan_2018))
+setdiff(colnames(articles_jan_2017), colnames(articles_feb_2018))
+setdiff(colnames(articles_jan_2017), colnames(articles_mar_2018))
+setdiff(colnames(articles_jan_2017), colnames(articles_apr_2018))
+setdiff(colnames(articles_jan_2017), colnames(articles_feb_2017))
+setdiff(colnames(articles_jan_2017), colnames(articles_mar_2017))
+setdiff(colnames(articles_jan_2017), colnames(articles_apr_2017))
+setdiff(colnames(articles_jan_2017), colnames(articles_may_2017))
+setdiff(colnames(comments_jan_2017), colnames(comments_jan_2018))
+setdiff(colnames(comments_jan_2017), colnames(comments_feb_2018))
+setdiff(colnames(comments_jan_2017), colnames(comments_mar_2018))
+setdiff(colnames(comments_jan_2017), colnames(comments_apr_2018))
+setdiff(colnames(comments_jan_2017), colnames(comments_feb_2017))
+setdiff(colnames(comments_jan_2017), colnames(comments_mar_2017))
+setdiff(colnames(comments_jan_2017), colnames(comments_apr_2017))
+setdiff(colnames(comments_jan_2017), colnames(comments_may_2017))
+```
+
+#Combining all articles in one dataframe
+```{r "", echo=FALSE}
+articles <- rbind(articles_jan_2017, articles_jan_2018, articles_feb_2017, articles_mar_2017, articles_apr_2017, articles_may_2017, articles_feb_2018, articles_apr_2018, articles_mar_2018)
+```
+
+#Combining all comments in one dataframe
+```{r "", echo=FALSE}
+comments <- rbind(comments_jan_2017, comments_jan_2018, comments_may_2017, comments_apr_2017, comments_mar_2017, comments_feb_2017, comments_feb_2018, comments_apr_2018, comments_mar_2018)
+```
+
+#Data cleaning for articles
+```{r "", echo=FALSE}
+#Converting variables to factors
+articles[,c("byline", "documentType", "multimedia","newDesk","printPage", "sectionName", "source", "typeOfMaterial")] <- lapply(articles[,c("byline", "documentType", "multimedia","newDesk","printPage", "sectionName", "source", "typeOfMaterial")], as.factor)
+
+#Removing irrelavant columns from 'articles' dataframe
+articles[,c("documentType", "webURL")] <- NULL
+```
+
+#Data cleaning for comments
+```{r "", echo=FALSE}
+#Removing irrelavant columns from comments dataframe
+comments[,c("commentTitle", "picURL", "recommendedFlag", "reportAbuseFlag", "sharing", "status", "timespeople", "userTitle", "userURL")] <- NULL
+
+#Changing class of some variables from string to factors and num to date
+comments[ ,c("commentType", "editorsSelection", "newDesk", "sectionName", "userLocation", "typeOfMaterial")] <- lapply(comments[ ,c("commentType", "editorsSelection", "newDesk", "sectionName","userLocation","typeOfMaterial")], as.factor)
+comments$approveDate <- as.POSIXct(comments$approveDate, origin="1970-01-01")
+comments$createDate <- as.POSIXct(comments$createDate, origin="1970-01-01")
+comments$updateDate <- as.POSIXct(comments$updateDate, origin="1970-01-01")
+```
+
+#Creating a single data frame combining articles and comments together
+```{r "", echo=FALSE}
+articles_comments = join(articles,comments, type = "inner")
+dim(articles_comments)
+```
+
+DATA VISUALIZATION
+
+#Top 15 categories with maximum comments added
+```{r "", echo=FALSE}
+newDesk_comment_dist_top15 <- articles_comments %>% select(newDesk) %>% group_by(newDesk) %>% dplyr::summarize(comment_count = n()) %>% arrange(desc(comment_count)) %>% mutate(newDesk = reorder(newDesk, comment_count)) %>% head(15)
+
+ggplot(newDesk_comment_dist_top15, aes(x = newDesk, y = comment_count)) + geom_bar(stat = "identity", fill = "#FF6666", colour= "white") + coord_flip() + geom_text(aes(x = newDesk, y = 1, label = paste0("(",round(comment_count)," )",sep="")),hjust=0, vjust=.5, size = 4, colour = 'black',fontface = 'bold') + labs(x = 'news Desk', y = 'Comment Count', title = 'newsDesk with maximum comments in NYT')
+```
+
+#Top 15 categories with maximum articles published
+```{r "", echo=FALSE}
+data <- articles_comments %>% select(newDesk, articleID)
+data1 <- data[!duplicated(data),]
+newDesk_article_dist_top15 <- data1 %>% group_by(newDesk) %>% dplyr::summarize(article_count = n()) %>% arrange(desc(article_count)) %>% mutate(newDesk = reorder(newDesk,article_count)) %>% head(15)
+
+ggplot(newDesk_article_dist_top15, aes(x = newDesk, y = article_count)) + geom_bar(stat = "identity", fill = "#FF6666", colour= "white") + coord_flip() + geom_text(aes(x = newDesk, y = 1, label = paste0("(",round(article_count)," )",sep="")),hjust=0, vjust=.5, size = 4, colour = 'black',fontface = 'bold') + labs(x = 'news Desk', y = 'Article Count', title = 'NewsDesk with maximum articles in NYT')
+```
+
+#Top 15 NewsDesk with most popular articles in NYT
+```{r "", echo=FALSE}
+comment_by_article_ratio <- merge(newDesk_article_dist_top15, newDesk_comment_dist_top15) %>% group_by(newDesk) %>% dplyr::summarize("C/A ratio" = comment_count/article_count) %>% arrange(desc(`C/A ratio`)) %>% mutate(newDesk = reorder(newDesk,`C/A ratio`)) %>% head(15)
+
+ggplot(comment_by_article_ratio, aes(x = newDesk, y = `C/A ratio`)) + geom_bar(stat = "identity", fill = "#FF6666") +coord_flip()+ geom_text(aes(x = newDesk, y = 1, label = paste0("(",round(`C/A ratio`)," )",sep="")),hjust=0, vjust=.5, size = 4, colour = 'black',fontface = 'bold') + labs(x = 'news Desk', y = 'Comment/Article ratio', title = 'NewsDesk with most popular articles in NYT')
+```
+
+FEATURE ENGINEERING BASED ON ARTICLES/HEADLINES/SNIPPETS
+
+#Feature Engineering for building predictive model predicting upvotes on new comments
+```{r "", echo=FALSE}
+#Feature reduction
+attach(articles_comments)
+articles_comments_features <- articles_comments
+articles_comments_features[,c("multimedia", "source", "webURL", "commentTitle", "picURL","sharing","commentSequence", "status","userTitle", "userURL", "recommendedFlag","reportAbuseFlag","timespeople","trusted")] <- NULL
+articles_comments_features$pubDate <- as.POSIXct(articles_comments_features$pubDate, origin="1970-01-01")
+articles_comments_features$day_of_week <- wday(articles_comments_features$pubDate, label = TRUE)
+articles_comments_features$pubDate <- ymd_hms(articles_comments_features$pubDate)
+articles_comments_features$year <- year(articles_comments_features$pubDate)
+articles_comments_features$day_of_week1 <- unclass(as.factor(wday(articles_comments_features$pubDate, label = TRUE)))
+```
+
+#Distinct articles dataframe
+```{r "", echo=FALSE}
+articles_df <- articles_comments_features %>% 
+  group_by(articleID) %>%
+  dplyr::summarize(num_comments = n()) %>%
+  ungroup %>%
+  as.data.frame()
+articles_df <- join(articles_comments_features, articles_df, by = "articleID", type = "left")
+```
+
+#Article Word Count Distribution (right skewed)
+```{r "", echo=FALSE}
+articles_df %>% ggplot(aes(x= articleWordCount)) +
+  geom_histogram(col = "darkblue", fill = "white", binwidth = 400) +
+  labs(x="Word Count", y="")+
+  theme_minimal() + facet_wrap(~year)
+```
+
+#Article Word count trend over Time
+```{r "", echo=FALSE}
+  articles_df %>% 
+  select(year, articleWordCount, pubDate) %>%
+  mutate(pubDate1 = as_date(ymd_hms(pubDate))) %>%
+  select(pubDate1, year, articleWordCount) %>%
+  group_by(pubDate1, year) %>%
+  dplyr::summarize(median_articleWordCount = median(articleWordCount)) %>%
+  ggplot(aes(x=pubDate1, y=median_articleWordCount)) +
+  geom_line(group =1) +
+  geom_smooth(aes(group=1),method = "lm", se=F, col = "red") +
+  facet_wrap(~factor(year), scales = "free", ncol = 1) + 
+  labs(x = "Published Date", y = "Median article word count") +
+  theme_bw()
+```
+
+#Sentiment score calculation for headlines and snippets to use as features for predictive modelling
+```{r "", echo=FALSE}
+# bing sentiments
+articles_df$headlineoriginal <- articles_df$headline
+headlines_analysis <- articles_df %>% select(articleID,headline,year, headlineoriginal) %>%
+  unnest_tokens(word,headline) %>%
+  anti_join(stop_words, by = "word") %>%
+  inner_join(get_sentiments("bing"), by = "word") %>%
+  filter(word != "unknown") %>%
+  group_by(articleID, headlineoriginal, sentiment) %>%
+  dplyr::summarise(count = n()) %>%
+  spread(sentiment, count, fill = 0) %>%
+  mutate(headline_sentiment_score = positive - negative) %>%
+  mutate(Headline_sentiment = ifelse(headline_sentiment_score == 0,"Neutral",ifelse(headline_sentiment_score >0,"Positive", "Negative")))
+  
+articles_df$snippetoriginal <- articles_df$snippet
+snippet_analysis <- articles_df %>% select(articleID,year,snippet,snippetoriginal) %>%
+  unnest_tokens(word,snippet) %>%
+  anti_join(stop_words, by = "word") %>%
+  inner_join(get_sentiments("bing"), by = "word") %>%
+  filter(word != "unknown") %>%
+  group_by(articleID, snippetoriginal, sentiment) %>%
+  dplyr::summarise(count = n()) %>% 
+  spread(sentiment, count, fill = 0) %>%
+  mutate(snippet_sentiment_score = positive - negative) %>%
+  mutate(snippet_sentiment = ifelse(snippet_sentiment_score == 0,"Neutral",ifelse(snippet_sentiment_score >0,"Positive", "Negative")))
+
+snippet_analysis <- as.data.frame(snippet_analysis)
+```
+
+#Sentiment score calculation for headlines and snippets using Sentimentr
+https://github.com/trinker/sentimentr
+```{r "", echo=FALSE}
+snippet_analysis_sentimentr <- articles_df %>% select(articleID,year,snippet) %>%
+    dplyr::mutate(snippet_split = get_sentences(snippet)) %$%
+    sentiment_by(snippet_split, list(articleID, year, snippet)) %>%
+    as.data.frame()
+
+snippet_analysis <- inner_join(snippet_analysis, snippet_analysis_sentimentr, by = "articleID")
+```
+
+#Creating df with Headline and snippet sentiment score
+```{r pressure, echo=FALSE}
+article_df_sentiments <- join(articles_df, headlines_analysis, by = "articleID", type = "left")
+article_sentiments <- join(article_df_sentiments, snippet_analysis, by = "articleID", type = "left")
+attach(article_sentiments)
+article_sentiments[,c("negative", "negative.1", "positive", "positive.1", "snippetoriginal.1", "snippetoriginal", "headlineoriginal", "headlineoriginal.1","year.1", "snippet.1", "sd")] <- NULL
+dim(article_sentiments)
+```
+
+#Selecting only snippet sentiments with Non-Null sentiment score
+```{r "", echo=FALSE}
+dim(article_sentiments[!is.na(article_sentiments$headline_sentiment_score),]) 
+#reducing data drastically (from 8373 articles to 3729 articles) and may impact model accuracy. Hence, ignoring headlines and considering snippets for the articles
+dim(article_sentiments[!is.na(article_sentiments$snippet_sentiment_score),])
+article_sentiments_notnull_snippet <- article_sentiments[!is.na(article_sentiments$snippet_sentiment_score),]
+articles_comments_features <- inner_join(article_sentiments_notnull_snippet, articles_comments_features)
+dim(articles_comments_features)
+```
+
+#Are articles more positive or negative (based on snippets sentiment score)?
+```{r "", echo=FALSE}
+article_sentiment_pattern <- article_sentiments_notnull_snippet %>% select(year, snippet_sentiment) %>% group_by(year, snippet_sentiment) %>% dplyr::summarise(count = n()) %>% ungroup() %>% as.data.frame()
+
+ggplot(article_sentiment_pattern, aes(y = count, x = snippet_sentiment)) +
+  geom_bar(stat = 'identity', fill = c("orange", "darkblue", "green","orange", "darkblue", "green")) +
+  labs(x="Snippet Sentiment", y = "Count") +
+  facet_wrap(~year)
+  theme_minimal()
+```
+
+#Sentiment Print Page Analysis (snippet sentiment analysis)
+The below aims to display whether positive articles are placed futher towards the front of the paper than negative articles.
+```{r "", echo=FALSE}
+article_sentiments_notnull_snippet %>%
+  filter(snippet_sentiment == "Positive" | snippet_sentiment == "Negative") %>%
+  ggplot(aes(x=snippet_sentiment, y=printPage)) +
+  geom_boxplot(col = "darkblue", fill = "lightgrey", alpha = 0.4) +
+  coord_flip() +
+  labs(x= "Snippet Sentiment", y= "Print Page") +
+  theme_bw() +
+  facet_wrap(~factor(year), scales = "free", ncol = 1)
+```
+
+#Most frequent words used in the article’s headline
+```{r "", echo=FALSE}
+custom_stop_words <- as.data.frame(stop_words %>% select(word))
+custom_stop_words <- rbind(custom_stop_words, "unknown", "1", "2", "3","6", "don't", "it’s", "2017", "trump's")
+# tokenise text in article headline
+tidy_articles <- articles_df %>%
+  select(articleID, byline, headline, pubDate, typeOfMaterial, articleWordCount, num_comments, year) %>%
+  unnest_tokens(word, headline) %>%
+  anti_join(custom_stop_words, by="word")
+
+tidy_articles %>% 
+  select(year, word) %>%
+  anti_join(custom_stop_words, by = "word") %>%
+  group_by(year, word) %>%
+  dplyr::summarize(count = n()) %>%
+  top_n(25) %>%
+  ggplot(aes(x= reorder(word, count), y=count)) +
+  geom_col(fill = "darkblue") +
+  facet_wrap(~year)+ 
+  coord_flip() +
+  labs(x= "Word", y= "Count") +
+  theme_bw() +
+  ggtitle("Top 25 words used in Articles")
+```
+
+#Does the day of the week impact how the sentiments are expressed in articles?
+```{r "", echo=FALSE}
+article_sentiments_notnull_snippet$pubDate <- ymd_hms(article_sentiments_notnull_snippet$pubDate)
+article_sentiments_notnull_snippet$day_of_week <- wday(article_sentiments_notnull_snippet$pubDate, label = TRUE)
+
+ggplot(data = article_sentiments_notnull_snippet, aes(x=day_of_week, fill = snippet_sentiment)) +
+  geom_bar(position = "fill") +
+  scale_fill_manual(values = c("lightgrey", "darkblue", "green")) +
+  facet_wrap(~year)
+  labs(x= "Weekday", "Frequency") +
+  theme_minimal()
+```
+
+FEATURE ENGINEERING BASED ON COMMENTS
+
+#Sentiment Analysis of the comments
+```{r "", echo=FALSE}
+#Custom functions defined
+comment_sentiments <- function(x) {
+      result <- x %>%
+      select(articleID,commentBody,commentID, year) %>%
+      unnest_tokens(word,commentBody) %>%
+      anti_join(stop_words, by = "word") %>%
+      inner_join(get_sentiments("bing"), by = "word") %>%
+      filter(word != "unknown") %>%
+      group_by(articleID, commentID, sentiment) %>%
+      dplyr::summarise(count = n()) %>%
+      spread(sentiment, count, fill = 0) %>%
+      mutate(comment_sentiment_score = positive - negative) %>%
+      mutate(comment_sentiment = ifelse(comment_sentiment_score == 0,"Neutral",ifelse(comment_sentiment_score >0,"Positive", "Negative")))
+}
+
+dim(articles_comments_features)
+
+#Custom function to process 1.7 million records in batches
+comment_sentiment_loop = function(full_df) {
+  first_loop = 50001
+  last_loop = 100000
+  result_collecter = comment_sentiments(full_df[c(1:50000),])
+  while (last_loop <= nrow(full_df)){
+    partial_results <- comment_sentiments(full_df[c(first_loop:last_loop),])
+    first_loop <- 1+last_loop
+    last_loop <- last_loop + 50000
+    result_collecter <- rbind(result_collecter, partial_results)
+    print(last_loop)
+  }
+return(result_collecter)
+}
+
+#Input dataframes
+articles_comments_features_df1 <- articles_comments_features[1:1500000,]
+articles_comments_features_leftout <- articles_comments_features[1500001:nrow(articles_comments_features),]
+
+#Output dataframes
+output1 <- comment_sentiment_loop(articles_comments_features_df1)
+output_leftout <- comment_sentiments(articles_comments_features_leftout)
+final_comment_sentiment <- rbind(output1, output_leftout)
+dim(final_comment_sentiment)
+
+articles_comments_features <- inner_join(article_sentiments_notnull_snippet, final_comment_sentiment, by = "articleID")
+attach(articles_comments_features)
+articles_comments_features[,c("headlineoriginal","snippetoriginal","negative.x","negative.y","positive.x","positive.y","year.1", "snippet.1")] <- NULL
+```
+
+#Time of the day when comment is made on the article
+```{r "", echo=FALSE}
+articles_comments_features$approveDate <- as.POSIXct(articles_comments_features$approveDate, origin="1970-01-01")
+articles_comments_features$comment_date <- ymd_hms(articles_comments_features$approveDate)
+articles_comments_features$comment_year <- year(articles_comments_features$approveDate)
+articles_comments_features$comment_time <- hour(articles_comments_features$approveDate)
+articles_comments_features$comment_time_of_day <- unclass(as.factor(ifelse(articles_comments_features$comment_time < 12, "Morning", ifelse(articles_comments_features$comment_time <17,  "Afternoon", "Night"))))
+```
+
+#Day of the week when comment is made on the article and article is published
+```{r "", echo=FALSE}
+articles_comments_features$comment_day_of_week <- as.factor(wday(articles_comments_features$approveDate, label = TRUE))
+articles_comments_features$comment_day_of_week1 <- unclass(as.factor(wday(articles_comments_features$approveDate, label = TRUE)))
+```
+
+#Feature cleaning
+```{r "", echo=FALSE}
+attach(articles_comments)
+articles_comments_1 <- articles_comments[,c("commentID", "approveDate")] %>% distinct()
+comments_1 <- comments[,c("commentID", "commentBody", "userDisplayName", "userLocation", "recommendations")]
+articles_comments_features <- left_join(articles_comments_features, articles_comments_1, by = "commentID")
+articles_comments_features <- left_join(articles_comments_features, comments_1, by = "commentID")
+articles_comments_features$article_comment_gap <- articles_comments_features$approveDate - articles_comments_features$pubDate
+units(articles_comments_features$article_comment_gap) <- "hours"
+articles_comments_features$article_comment_gap <- as.numeric(articles_comments_features$article_comment_gap)
+articles_comments_features[,c("year.1", "snippet.1", "negative", "positive", "snippetoriginal", "headlineoriginal", "commentBody.x", "commentBody.y","userDisplayName", "userLocation", "approveDate.y")] <- NULL
+```
+
+#Most frequent words used in the comments
+```{r "", echo=FALSE}
+custom_stop_words_2 <- as.data.frame(stop_words %>% select(word))
+custom_stop_words_2 <- rbind(custom_stop_words, "unknown", "1", "2", "3","6", "don't", "it’s", "2017", "br", "trump's", "president", "time")
+
+# tokenise text in comments
+tidy_comments <- function(df) {
+  tidy_comments_df <- df %>%
+  select(year, commentID, commentBody) %>%
+  unnest_tokens(word, commentBody) %>%
+  anti_join(custom_stop_words_2, by="word") %>%
+  group_by(year, word) %>%
+  dplyr::summarize(count = n())
+}
+
+#Custom function to process 1.7 million comments in batches to find top 25 words
+tidy_comment_loop = function(full_df) {
+first_loop = 50001
+  last_loop = 100000
+  tidy_comment_collecter = tidy_comments(full_df[c(1:50000),])
+  while (last_loop <= nrow(full_df)){
+    partial_results <- tidy_comments(full_df[c(first_loop:last_loop),])
+    first_loop <- 1+last_loop
+    last_loop <- last_loop + 50000
+    tidy_comment_collecter <- rbind(tidy_comment_collecter, partial_results)
+    print(last_loop)
+  }
+return(tidy_comment_collecter)
+}
+
+#Input dataframes
+articles_comments_features_df1 <- articles_comments_features[1:1000000,]
+articles_comments_features_df2 <- articles_comments_features[1000001:nrow(articles_comments_features),]
+
+#Output dataframes
+output1 <- tidy_comment_loop(articles_comments_features_df1)
+output2 <- tidy_comments(articles_comments_features_df2[1:10,])
+tidy_comments_output <- rbind(output1, output2) %>% group_by(year, word) %>% anti_join(custom_stop_words_2) %>% dplyr::summarize(count = sum(count)) %>% top_n(25)
+
+dim(tidy_comments_output)
+
+  tidy_comments_output %>%
+  ggplot(aes(x= reorder(word, count), y=count)) +
+  geom_col(fill = "darkblue") +
+  facet_wrap(~year)+ 
+  coord_flip() +
+  labs(x= "Comment Word", y= "Count") +
+  theme_bw()+
+  ggtitle("Top 25 words used in Comments")
+```
+
+#Total words in each comment
+```{r "", echo=FALSE}
+word_count_comment <- function(df) {
+  word_count_comment_df <- df %>%
+  select(commentID, commentBody) %>%
+  unnest_tokens(word, commentBody) %>% group_by(commentID) %>% dplyr::summarize(word_count = n())
+}
+
+#Custom function to process 1.7 million comments in batches to find word count of comments
+comment_word_count_loop = function(full_df) {
+  first_loop = 50001
+  last_loop = 100000
+  comment_word_count_collecter = word_count_comment(full_df[c(1:50000),])
+  while (last_loop <= nrow(full_df)){
+    partial_results <- word_count_comment(full_df[c(first_loop:last_loop),])
+    first_loop <- 1+last_loop
+    last_loop <- last_loop + 50000
+    comment_word_count_collecter <- rbind(comment_word_count_collecter, partial_results)
+    print(last_loop)
+  }
+return(comment_word_count_collecter)
+}
+
+#Output dataframes
+output_wc_1 <- comment_word_count_loop(articles_comments_features_df1)
+output_wc_2 <- word_count_comment(articles_comments_features_df2)
+comment_word_count_output <- rbind(output_wc_1, output_wc_2)
+```
+
+#Number of sentences in the comment
+```{r "", echo=FALSE}
+sen_count <- function(df) {
+                  output <- c()
+                  x <- 1
+                  for (x in (1:nrow(df))) {
+                          num_sen <- length(gregexpr('[[:alnum:] ][.!?]', df$commentBody[x])[[1]])
+                          output <- c(output, num_sen)
+                          x <- x+1
+                  }
+                  return(output)
+                  }
+
+sen_count_loop = function(full_df) {
+  first_loop = 50001
+  last_loop = 100000
+  sen_count_collecter = sen_count(full_df[c(1:50000),])
+  while (last_loop <= nrow(full_df)){
+    partial_results <- sen_count(full_df[c(first_loop:last_loop),])
+    first_loop <- 1+last_loop
+    last_loop <- last_loop + 50000
+    sen_count_collecter <- c(sen_count_collecter, partial_results)
+    print(last_loop)
+  }
+return(sen_count_collecter)
+}
+
+#Output dataframes
+output1 <- sen_count_loop(articles_comments_features_df1)
+output2 <- sen_count(articles_comments_features_df2)
+sen_count_output <- c(output1, output2)
+commentID_df <- c(articles_comments_features_df1$commentID, articles_comments_features_df2$commentID)
+sen_count_df <- data.frame(commentID_df, sen_count_output)
+
+##sen_count_df 
+```
+
+#Joiningword and sentence count for comments
+```{r "", echo=FALSE}
+comment_word_sen_count <- inner_join(sen_count_df,comment_word_count_output, by = c("commentID_df" = "commentID"))
+articles_comments_features <- inner_join(articles_comments_features,  comment_word_sen_count, by = c("commentID" = "commentID_df"))
+```
+
+#Average word/sentence in the comment
+```{r "", echo=FALSE}
+articles_comments_features$words_p_sen <- articles_comments_features$word_count.y/articles_comments_features$sen_count_output 
+head(articles_comments_features)
+```
+
+#% of profanity words in the comment
+```{r "", echo=FALSE}
+badwords<-readLines("http://www.cs.cmu.edu/~biglou/resources/bad-words.txt")
+badwords <- data.frame(badwords)
+tidy_comments_words <- rbind(output1, output2)
+
+
+#badwords<-badwords[-(which(badwords%in%c("refugee","reject","remains","screw","welfare", "sweetness","shoot","sick","shooting","servant","sex","radical","racial","racist","republican","public","molestation","mexican","looser","lesbian","liberal","kill","killing","killer","heroin","fraud","fire","fight","fairy","^die","death","desire","deposit","crash","^crim","crack","^color","cigarette","church","^christ","canadian", "cancer","^catholic","cemetery","buried","burn","breast","^bomb","^beast","attack","australian","balls","baptist","^addict","abuse","abortion","amateur","asian","aroused","angry","arab","bible")==TRUE))]
+
+
+
+library(tm)
+library(SnowballC)
+profanityList  <- read.csv("googleProfanity.txt",header = FALSE,stringsAsFactors = FALSE)
+removeProfanity <- content_transformer(function(x) {
+                for(i in 1:nrow(profanityList)){
+                        x <-  gsub(profanityList$V1[i],"", x)
+                       }
+                return(x)
+                })
+removeSpecialChars  <- content_transformer(function(x) {
+        x <- gsub('[])(;:#%$^*\\~{}[&+=@/"`|<>_]+', "", x)
+        return(x) })
+
+cleanCorpus  <- function(corpus){
+        
+        corpus.tmp <- tm_map(corpus,content_transformer(tolower))
+        corpus.tmp <- tm_map(corpus.tmp,content_transformer(removePunctuation))
+
+        corpus.tmp <- tm_map(corpus.tmp,content_transformer(removeNumbers))
+        corpus.tmp <- tm_map(corpus.tmp,removeWords,stopwords("english"))
+        corpus.tmp <- tm_map(corpus.tmp,removeProfanity)
+        
+        corpus.tmp <- tm_map(corpus.tmp,content_transformer(stemDocument))
+        corpus.tmp <- tm_map(corpus.tmp,content_transformer(stripWhitespace))
+        
+        corpus.tmp <- tm_map(corpus.tmp,removeSpecialChars)              
+        corpus.tmp <- tm_map(corpus.tmp,PlainTextDocument)
+        
+        return(corpus.tmp)
+        }
+```
+
+#Lexical density of the comment
+```{r "", echo=FALSE}
+
+```
+
+#Do certain words in headlines elicit more comments
+```{r "", echo=FALSE}
+# create a df of the top 25 used words
+attach(tidy_articles)
+tidy_articles$word1 <- gsub("[^A-Za-z0-9]", "", tidy_articles$word)
+top_25_headline_words <- tidy_articles %>% select(year, word1) %>% dplyr::count(word1) %>% top_n(25)
+
+# join articles metadata to the top 25 words df
+top_25_headline_words <- tidy_articles %>%
+  inner_join(top_25_headline_words, by = c("word"= "word1"))
+
+# boxplot
+  top_25_headline_words %>% filter(year == 2017) %>%
+  ggplot(aes(x=word1, y= num_comments)) +
+  geom_boxplot(col = "darkblue", fill = "lightgrey", alpha = 0.2) +
+  labs(x= "Word", y= "Number of Comments") +
+  coord_flip() +
+  theme_bw()
+
+  top_25_headline_words %>% filter(year == 2018) %>%
+  ggplot(aes(x=word1, y= num_comments)) +
+  geom_boxplot(col = "darkblue", fill = "lightgrey", alpha = 0.2) +
+  labs(x= "Word", y= "Number of Comments") +
+  coord_flip() +
+  theme_bw()
+```
+
+#Relationship between Article word count and number of comments
+```{r "", echo=FALSE}
+cor(articles_df$articleWordCount, articles_df$num_comments)
+ggplot(data = articles_df, aes(x= articleWordCount, y= num_comments)) +
+  geom_point(col = "darkblue", alpha = 0.5) +
+  geom_smooth(method = "lm", linetype = 2, se = F, col = "red") +
+  labs(x= "Word Count", y= "Number of comments") +
+  theme_bw()
+#The plot below indicates a weak positive relationship between the article’s wordcount and the number of comments it receives, with correlation = 0.1047425
+```
+
+#Type of material vs number of comments in 2017 and 2018
+Does the type of materials in March 2018 lead to different numbers of comments?
+```{r "", echo=FALSE}
+ggplot(data = articles_df, aes(x=typeOfMaterial, y=num_comments)) +
+  geom_boxplot(fill = "grey", col = "blue") +
+  coord_flip() + scale_y_continuous(trans="log10", limits=c(NA,2000))
+  labs(x= "Type of Material", y= "Number of comments") + 
+  theme_bw()
+```
+
+#Do certain words in comments elicit more recommendations ##incomplete
+```{r "", echo=FALSE}
+# create a df of the top 25 used words
+attach(tidy_comments_output)
+tidy_articles$word1 <- gsub("[^A-Za-z0-9]", "", tidy_articles$word)
+top_25_headline_words <- tidy_articles %>% select(year, word1) %>% dplyr::count(word1) %>% top_n(25)
+
+# join articles metadata to the top 25 words df
+top_25_headline_words <- tidy_articles %>%
+  inner_join(top_25_headline_words, by = c("word"= "word1"))
+
+# boxplot
+  top_25_headline_words %>% filter(year == 2017) %>%
+  ggplot(aes(x=word1, y= num_comments)) +
+  geom_boxplot(col = "darkblue", fill = "lightgrey", alpha = 0.2) +
+  labs(x= "Word", y= "Number of Comments") +
+  coord_flip() +
+  theme_bw()
+
+  top_25_headline_words %>% filter(year == 2018) %>%
+  ggplot(aes(x=word1, y= num_comments)) +
+  geom_boxplot(col = "darkblue", fill = "lightgrey", alpha = 0.2) +
+  labs(x= "Word", y= "Number of Comments") +
+  coord_flip() +
+  theme_bw()
+```
+
+#Correlation between comments upvotes with day of the week
+```{r "", echo=FALSE}
+cor(articles_comments_features$comment_day_of_week1, articles_comments_features$recommendations)
+ggplot(data = articles_comments_features, aes(x= comment_day_of_week1, y= recommendations)) +
+  geom_point(col = "darkblue", alpha = 0.5) +
+  geom_smooth(method = "lm", linetype = 2, se = F, col = "red") +
+  labs(x= "Day of week", y= "Number of upvotes") +
+  theme_bw()
+```
+
+#Correlation between comments upvotes with time of the day
+```{r "", echo=FALSE}
+cor(articles_comments_features$comment_time_of_day, articles_comments_features$recommendations)
+ggplot(data = articles_comments_features, aes(x= comment_time_of_day, y= recommendations)) +
+  geom_point(col = "darkblue", alpha = 0.5) +
+  geom_smooth(method = "lm", linetype = 2, se = F, col = "red") +
+  labs(x= "Time of day", y= "Number of upvotes") +
+  theme_bw()
+```
+
+#Correlation between comments sentiments with the upvotes received
+```{r "", echo=FALSE}
+cor(articles_comments_features$comment_sentiment_score, articles_comments_features$recommendations)
+ggplot(data = articles_comments_features, aes(x= comment_sentiment_score, y= recommendations)) +
+  geom_point(col = "darkblue", alpha = 0.5) +
+  geom_smooth(method = "lm", linetype = 2, se = F, col = "red") +
+  labs(x= "Comment_sentiments", y= "Number of upvotes") +
+  theme_bw()
+```
+
+#Removing unwanted features
+```{r "", echo=FALSE}
+attach(articles_comments_features)
+str(articles_comments_features)
+articles_comments_features[,c("headline", "snippet", "typeOfMaterial", "comment_year", "approveDate.x")] <- NULL
+```
