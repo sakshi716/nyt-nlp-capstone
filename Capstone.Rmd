@@ -1,3 +1,4 @@
+
 ---
 title: "Capstone project"
 author: "Sakshi"
@@ -22,6 +23,15 @@ When you click the **Knit** button a document will be generated that includes bo
 install.packages("tidyverse")
 install.packages("tidytext")
 install.packages("tidyr")
+install.packages("sentimentr")
+install.packages("text2vec")
+install.packages("caret")
+install.packages("ROCR")
+install.packages("glmnet")
+library("glmnet")
+library("text2vec")
+library("ROCR")
+library("caret")
 library(dplyr)
 library(tidytext)
 library(tidyr)
@@ -32,29 +42,28 @@ library(tidytext)
 library(tidyr)
 library(magrittr)
 library(sentimentr)
-#rm(list = ls())
 ```
 
 #Importing csv files into dataframes
 ```{r, echo=FALSE}
-articles_jan_2017 <- read.csv("/Users/sakshi.gupta/Downloads/nyt-comments/ArticlesJan2017.csv", header = TRUE, stringsAsFactors = FALSE)
-comments_jan_2017 <- read.csv("/Users/sakshi.gupta/Downloads/nyt-comments/CommentsJan2017.csv", header = TRUE, stringsAsFactors = FALSE )
-articles_jan_2018 <- read.csv("/Users/sakshi.gupta/Downloads/nyt-comments/ArticlesJan2018.csv", header = TRUE, stringsAsFactors = FALSE )
-comments_jan_2018 <- read.csv("/Users/sakshi.gupta/Downloads/nyt-comments/CommentsJan2018.csv", header = TRUE, stringsAsFactors = FALSE )
-articles_mar_2018 <- read.csv("/Users/sakshi.gupta/Downloads/nyt-comments/ArticlesMarch2018.csv", header = TRUE, stringsAsFactors = FALSE )
-comments_mar_2018 <- read.csv("/Users/sakshi.gupta/Downloads/nyt-comments/CommentsMarch2018.csv", header = TRUE, stringsAsFactors = FALSE )
-articles_mar_2017 <- read.csv("/Users/sakshi.gupta/Downloads/nyt-comments/ArticlesMarch2017.csv", header = TRUE, stringsAsFactors = FALSE )
-comments_mar_2017 <- read.csv("/Users/sakshi.gupta/Downloads/nyt-comments/CommentsMarch2017.csv", header = TRUE, stringsAsFactors = FALSE )
-articles_feb_2017 <- read.csv("/Users/sakshi.gupta/Downloads/nyt-comments/ArticlesFeb2017.csv", header = TRUE, stringsAsFactors = FALSE )
-comments_feb_2017 <- read.csv("/Users/sakshi.gupta/Downloads/nyt-comments/CommentsFeb2017.csv", header = TRUE, stringsAsFactors = FALSE )
-articles_feb_2018 <- read.csv("/Users/sakshi.gupta/Downloads/nyt-comments/ArticlesFeb2018.csv", header = TRUE, stringsAsFactors = FALSE )
-comments_feb_2018 <- read.csv("/Users/sakshi.gupta/Downloads/nyt-comments/CommentsFeb2018.csv", header = TRUE, stringsAsFactors = FALSE )
-articles_apr_2017 <- read.csv("/Users/sakshi.gupta/Downloads/nyt-comments/ArticlesApril2017.csv", header = TRUE, stringsAsFactors = FALSE )
-comments_apr_2017 <- read.csv("/Users/sakshi.gupta/Downloads/nyt-comments/CommentsApril2017.csv", header = TRUE, stringsAsFactors = FALSE )
-articles_apr_2018 <- read.csv("/Users/sakshi.gupta/Downloads/nyt-comments/ArticlesApril2018.csv", header = TRUE, stringsAsFactors = FALSE )
-comments_apr_2018 <- read.csv("/Users/sakshi.gupta/Downloads/nyt-comments/CommentsApril2018.csv", header = TRUE, stringsAsFactors = FALSE )
-articles_may_2017 <- read.csv("/Users/sakshi.gupta/Downloads/nyt-comments/ArticlesMay2017.csv", header = TRUE, stringsAsFactors = FALSE )
-comments_may_2017 <- read.csv("/Users/sakshi.gupta/Downloads/nyt-comments/CommentsMay2017.csv", header = TRUE, stringsAsFactors = FALSE )
+articles_jan_2017 <- read.csv("/Users/xxxx/Downloads/nyt-comments/ArticlesJan2017.csv", header = TRUE, stringsAsFactors = FALSE)
+comments_jan_2017 <- read.csv("/Users/xxxx/Downloads/nyt-comments/CommentsJan2017.csv", header = TRUE, stringsAsFactors = FALSE )
+articles_jan_2018 <- read.csv("/Users/xxxx/Downloads/nyt-comments/ArticlesJan2018.csv", header = TRUE, stringsAsFactors = FALSE )
+comments_jan_2018 <- read.csv("/Users/xxxx/Downloads/nyt-comments/CommentsJan2018.csv", header = TRUE, stringsAsFactors = FALSE )
+articles_mar_2018 <- read.csv("/Users/xxxx/Downloads/nyt-comments/ArticlesMarch2018.csv", header = TRUE, stringsAsFactors = FALSE )
+comments_mar_2018 <- read.csv("/Users/xxxx/Downloads/nyt-comments/CommentsMarch2018.csv", header = TRUE, stringsAsFactors = FALSE )
+articles_mar_2017 <- read.csv("/Users/xxxx/Downloads/nyt-comments/ArticlesMarch2017.csv", header = TRUE, stringsAsFactors = FALSE )
+comments_mar_2017 <- read.csv("/Users/xxxx/Downloads/nyt-comments/CommentsMarch2017.csv", header = TRUE, stringsAsFactors = FALSE )
+articles_feb_2017 <- read.csv("/Users/xxxx/Downloads/nyt-comments/ArticlesFeb2017.csv", header = TRUE, stringsAsFactors = FALSE )
+comments_feb_2017 <- read.csv("/Users/xxxx/Downloads/nyt-comments/CommentsFeb2017.csv", header = TRUE, stringsAsFactors = FALSE )
+articles_feb_2018 <- read.csv("/Users/xxxx/Downloads/nyt-comments/ArticlesFeb2018.csv", header = TRUE, stringsAsFactors = FALSE )
+comments_feb_2018 <- read.csv("/Users/xxxx/Downloads/nyt-comments/CommentsFeb2018.csv", header = TRUE, stringsAsFactors = FALSE )
+articles_apr_2017 <- read.csv("/Users/xxxx/Downloads/nyt-comments/ArticlesApril2017.csv", header = TRUE, stringsAsFactors = FALSE )
+comments_apr_2017 <- read.csv("/Users/xxxx/Downloads/nyt-comments/CommentsApril2017.csv", header = TRUE, stringsAsFactors = FALSE )
+articles_apr_2018 <- read.csv("/Users/xxxx/Downloads/nyt-comments/ArticlesApril2018.csv", header = TRUE, stringsAsFactors = FALSE )
+comments_apr_2018 <- read.csv("/Users/xxxx/Downloads/nyt-comments/CommentsApril2018.csv", header = TRUE, stringsAsFactors = FALSE )
+articles_may_2017 <- read.csv("/Users/xxxx/Downloads/nyt-comments/ArticlesMay2017.csv", header = TRUE, stringsAsFactors = FALSE )
+comments_may_2017 <- read.csv("/Users/xxxx/Downloads/nyt-comments/CommentsMay2017.csv", header = TRUE, stringsAsFactors = FALSE )
 ```
 
 #Data snapshot
@@ -100,56 +109,34 @@ setdiff(colnames(comments_jan_2017), colnames(comments_may_2017))
 #Combining all articles in one dataframe
 ```{r "", echo=FALSE}
 articles <- rbind(articles_jan_2017, articles_jan_2018, articles_feb_2017, articles_mar_2017, articles_apr_2017, articles_may_2017, articles_feb_2018, articles_apr_2018, articles_mar_2018)
+rm(list = c("articles_jan_2017", "articles_jan_2018", "articles_feb_2017", "articles_mar_2017", "articles_apr_2017", "articles_may_2017", "articles_feb_2018", "articles_apr_2018", "articles_mar_2018"))
 ```
 
 #Combining all comments in one dataframe
 ```{r "", echo=FALSE}
 comments <- rbind(comments_jan_2017, comments_jan_2018, comments_may_2017, comments_apr_2017, comments_mar_2017, comments_feb_2017, comments_feb_2018, comments_apr_2018, comments_mar_2018)
-```
-
-#Data cleaning for articles
-```{r "", echo=FALSE}
-#Converting variables to factors
-articles[,c("byline", "documentType", "multimedia","newDesk","printPage", "sectionName", "source", "typeOfMaterial")] <- lapply(articles[,c("byline", "documentType", "multimedia","newDesk","printPage", "sectionName", "source", "typeOfMaterial")], as.factor)
-
-#Removing irrelavant columns from 'articles' dataframe
-articles[,c("documentType", "webURL")] <- NULL
-```
-
-#Data cleaning for comments
-```{r "", echo=FALSE}
-#Removing irrelavant columns from comments dataframe
-comments[,c("commentTitle", "picURL", "recommendedFlag", "reportAbuseFlag", "sharing", "status", "timespeople", "userTitle", "userURL")] <- NULL
-
-#Changing class of some variables from string to factors and num to date
-comments[ ,c("commentType", "editorsSelection", "newDesk", "sectionName", "userLocation", "typeOfMaterial")] <- lapply(comments[ ,c("commentType", "editorsSelection", "newDesk", "sectionName","userLocation","typeOfMaterial")], as.factor)
-comments$approveDate <- as.POSIXct(comments$approveDate, origin="1970-01-01")
-comments$createDate <- as.POSIXct(comments$createDate, origin="1970-01-01")
-comments$updateDate <- as.POSIXct(comments$updateDate, origin="1970-01-01")
+rm(list = c("comments_jan_2017", "comments_jan_2018", "comments_may_2017", "comments_apr_2017"))
+rm(list = c("comments_mar_2017", "comments_feb_2017", "comments_feb_2018", "comments_apr_2018", "comments_mar_2018"))
+summary(comments)
 ```
 
 #Creating a single data frame combining articles and comments together
 ```{r "", echo=FALSE}
 articles_comments = join(articles,comments, type = "inner")
 dim(articles_comments)
+summary(articles_comments)
 ```
 
 DATA VISUALIZATION
 
 #Top 15 categories with maximum comments added
 ```{r "", echo=FALSE}
-newDesk_comment_dist_top15 <- articles_comments %>% select(newDesk) %>% group_by(newDesk) %>% dplyr::summarize(comment_count = n()) %>% arrange(desc(comment_count)) %>% mutate(newDesk = reorder(newDesk, comment_count)) %>% head(15)
-
-ggplot(newDesk_comment_dist_top15, aes(x = newDesk, y = comment_count)) + geom_bar(stat = "identity", fill = "#FF6666", colour= "white") + coord_flip() + geom_text(aes(x = newDesk, y = 1, label = paste0("(",round(comment_count)," )",sep="")),hjust=0, vjust=.5, size = 4, colour = 'black',fontface = 'bold') + labs(x = 'news Desk', y = 'Comment Count', title = 'newsDesk with maximum comments in NYT')
+articles_comments_org %>% select(newDesk) %>% group_by(newDesk) %>% dplyr::summarize(comment_count = n()) %>% arrange(desc(comment_count)) %>% mutate(newDesk = reorder(newDesk, comment_count)) %>% head(15) %>% ggplot(aes(x = newDesk, y = comment_count)) + geom_bar(stat = "identity", fill = "#FF6666", colour= "white") + coord_flip() + geom_text(aes(x = newDesk, y = 1, label = paste0("(",round(comment_count)," )",sep="")),hjust=0, vjust=.5, size = 4, colour = 'black',fontface = 'bold') + labs(x = 'news Desk', y = 'Comment Count', title = 'newsDesk with maximum comments in NYT')
 ```
 
 #Top 15 categories with maximum articles published
 ```{r "", echo=FALSE}
-data <- articles_comments %>% select(newDesk, articleID)
-data1 <- data[!duplicated(data),]
-newDesk_article_dist_top15 <- data1 %>% group_by(newDesk) %>% dplyr::summarize(article_count = n()) %>% arrange(desc(article_count)) %>% mutate(newDesk = reorder(newDesk,article_count)) %>% head(15)
-
-ggplot(newDesk_article_dist_top15, aes(x = newDesk, y = article_count)) + geom_bar(stat = "identity", fill = "#FF6666", colour= "white") + coord_flip() + geom_text(aes(x = newDesk, y = 1, label = paste0("(",round(article_count)," )",sep="")),hjust=0, vjust=.5, size = 4, colour = 'black',fontface = 'bold') + labs(x = 'news Desk', y = 'Article Count', title = 'NewsDesk with maximum articles in NYT')
+articles %>% select(newDesk, articleID) %>% group_by(newDesk) %>% dplyr::summarize(article_count = n()) %>% arrange(desc(article_count)) %>% mutate(newDesk = reorder(newDesk,article_count)) %>% head(15) %>% ggplot(aes(x = newDesk, y = article_count)) + geom_bar(stat = "identity", fill = "#FF6666", colour= "white") + coord_flip() + geom_text(aes(x = newDesk, y = 1, label = paste0("(",round(article_count)," )",sep="")),hjust=0, vjust=.5, size = 4, colour = 'black',fontface = 'bold') + labs(x = 'news Desk', y = 'Article Count', title = 'NewsDesk with maximum articles in NYT')
 ```
 
 #Top 15 NewsDesk with most popular articles in NYT
@@ -157,36 +144,72 @@ ggplot(newDesk_article_dist_top15, aes(x = newDesk, y = article_count)) + geom_b
 comment_by_article_ratio <- merge(newDesk_article_dist_top15, newDesk_comment_dist_top15) %>% group_by(newDesk) %>% dplyr::summarize("C/A ratio" = comment_count/article_count) %>% arrange(desc(`C/A ratio`)) %>% mutate(newDesk = reorder(newDesk,`C/A ratio`)) %>% head(15)
 
 ggplot(comment_by_article_ratio, aes(x = newDesk, y = `C/A ratio`)) + geom_bar(stat = "identity", fill = "#FF6666") +coord_flip()+ geom_text(aes(x = newDesk, y = 1, label = paste0("(",round(`C/A ratio`)," )",sep="")),hjust=0, vjust=.5, size = 4, colour = 'black',fontface = 'bold') + labs(x = 'news Desk', y = 'Comment/Article ratio', title = 'NewsDesk with most popular articles in NYT')
+
+top6_newsdesk <- c("National", "Editorial", "Washington", "OpEd", "Business", "Foreign")
+```
+
+#Top 15 NewsDesk with most popular comments in NYT
+```{r "", echo=FALSE}
+attach(articles_comments)
+articles_comments[newDesk %in% top6_newsdesk,] %>% ggplot(aes(y = recommendations, x = newDesk)) + geom_boxplot()
+```
+
+#Creating dataframes with top 6 NewsDesks as identified above
+```{r "", echo=FALSE}
+articles <- distinct(articles[newDesk %in% top6_newsdesk,])
+comments <- distinct(comments[newDesk %in% top6_newsdesk,])
+articles_comments <- distinct(articles_comments[newDesk %in% top6_newsdesk,])
+
 ```
 
 FEATURE ENGINEERING BASED ON ARTICLES/HEADLINES/SNIPPETS
 
-#Feature Engineering for building predictive model predicting upvotes on new comments
+#Data cleaning for articles
 ```{r "", echo=FALSE}
-#Feature reduction
-attach(articles_comments)
-articles_comments_features <- articles_comments
-articles_comments_features[,c("multimedia", "source", "webURL", "commentTitle", "picURL","sharing","commentSequence", "status","userTitle", "userURL", "recommendedFlag","reportAbuseFlag","timespeople","trusted")] <- NULL
-articles_comments_features$pubDate <- as.POSIXct(articles_comments_features$pubDate, origin="1970-01-01")
-articles_comments_features$day_of_week <- wday(articles_comments_features$pubDate, label = TRUE)
-articles_comments_features$pubDate <- ymd_hms(articles_comments_features$pubDate)
-articles_comments_features$year <- year(articles_comments_features$pubDate)
-articles_comments_features$day_of_week1 <- unclass(as.factor(wday(articles_comments_features$pubDate, label = TRUE)))
+#Converting variables to factors
+articles[,c("byline", "documentType", "multimedia","newDesk","printPage", "sectionName", "source", "typeOfMaterial")] <- lapply(articles[,c("byline", "documentType", "multimedia","newDesk","printPage", "sectionName", "source", "typeOfMaterial")], as.factor)
+
+#Removing irrelavant columns from 'articles' dataframe
+articles[,c("documentType", "multimedia", "webURL", "source")] <- NULL
+
+articles$pubDate <- as.POSIXct(articles$pubDate, origin="1970-01-01")
+articles$pubDate <- ymd_hms(articles$pubDate)
+
+articles$art_day_of_week <- wday(articles$pubDate, label = TRUE)
+articles$year <- year(articles$pubDate)
+articles$art_day_of_week1 <- unclass(as.factor(wday(articles$pubDate, label = TRUE)))
+
+articles <- articles[!is.na(articles$snippet),] #removing articles with no snippets
 ```
 
-#Distinct articles dataframe
+#Data cleaning for comments
 ```{r "", echo=FALSE}
-articles_df <- articles_comments_features %>% 
-  group_by(articleID) %>%
-  dplyr::summarize(num_comments = n()) %>%
-  ungroup %>%
-  as.data.frame()
-articles_df <- join(articles_comments_features, articles_df, by = "articleID", type = "left")
+#Removing irrelavant columns from comments dataframe
+comments[,c("commentTitle", "picURL", "recommendedFlag", "reportAbuseFlag", "sharing", "status", "timespeople", "userTitle", "userURL", "userID", "userLocation", "userDisplayName", "commentType", "depth", "inReplyTo", "parentID", "parentUserDisplayName", "permID")] <- NULL
+
+#Changing class of some variables from string to factors and num to date
+comments[ ,c("editorsSelection", "newDesk", "sectionName", "typeOfMaterial")] <- lapply(comments[ ,c("editorsSelection", "newDesk", "sectionName","typeOfMaterial")], as.factor)
+comments$approveDate <- as.POSIXct(comments$approveDate, origin="1970-01-01")
+comments$createDate <- as.POSIXct(comments$createDate, origin="1970-01-01")
+comments$updateDate <- as.POSIXct(comments$updateDate, origin="1970-01-01")
+comments[,c("commentTitle", "picURL","sharing","commentSequence", "status","userTitle", "userURL", "recommendedFlag","reportAbuseFlag","timespeople","trusted")] <- NULL
+
+#Time of the day when comment is made on the article
+comments$comment_date <- ymd_hms(comments$approveDate)
+comments$comment_time <- hour(comments$approveDate)
+comments$comment_time_of_day <- as.factor(ifelse(comments$comment_time < 12, "Morning", ifelse(articles_comments$comment_time <17,  "Afternoon", "Night")))
+barchart(table(comments$comment_time_of_day), main = "Comments by time of the day", ylab = "Time of day", xlab = "No.of comments")
+
+#Day of the week when comment is made on the article and article is published
+comments$comment_day_of_week <- as.factor(wday(comments$approveDate, label = TRUE))
+comments$comment_day_of_week1 <- unclass(as.factor(wday(comments$approveDate, label = TRUE)))
+barchart(table(comments$comment_day_of_week), main = "Comments by Days of the week", xlab = "Days of the week", ylab = "No.of comments")
+
 ```
 
 #Article Word Count Distribution (right skewed)
 ```{r "", echo=FALSE}
-articles_df %>% ggplot(aes(x= articleWordCount)) +
+articles %>% ggplot(aes(x= articleWordCount)) +
   geom_histogram(col = "darkblue", fill = "white", binwidth = 400) +
   labs(x="Word Count", y="")+
   theme_minimal() + facet_wrap(~year)
@@ -194,7 +217,7 @@ articles_df %>% ggplot(aes(x= articleWordCount)) +
 
 #Article Word count trend over Time
 ```{r "", echo=FALSE}
-  articles_df %>% 
+  articles %>% 
   select(year, articleWordCount, pubDate) %>%
   mutate(pubDate1 = as_date(ymd_hms(pubDate))) %>%
   select(pubDate1, year, articleWordCount) %>%
@@ -210,40 +233,42 @@ articles_df %>% ggplot(aes(x= articleWordCount)) +
 
 #Sentiment score calculation for headlines and snippets to use as features for predictive modelling
 ```{r "", echo=FALSE}
+rm(article_sentiments)
+rm(headlines_analysis)
+rm(snippet_analysis)
 # bing sentiments
-articles_df$headlineoriginal <- articles_df$headline
-headlines_analysis <- articles_df %>% select(articleID,headline,year, headlineoriginal) %>%
+headlines_analysis <- articles %>% select(articleID,headline,year) %>%
   unnest_tokens(word,headline) %>%
   anti_join(stop_words, by = "word") %>%
   inner_join(get_sentiments("bing"), by = "word") %>%
   filter(word != "unknown") %>%
-  group_by(articleID, headlineoriginal, sentiment) %>%
+  group_by(articleID, sentiment) %>%
   dplyr::summarise(count = n()) %>%
   spread(sentiment, count, fill = 0) %>%
   mutate(headline_sentiment_score = positive - negative) %>%
   mutate(Headline_sentiment = ifelse(headline_sentiment_score == 0,"Neutral",ifelse(headline_sentiment_score >0,"Positive", "Negative")))
+headlines_analysis[,c("positive", "negative")] <- NULL
   
-articles_df$snippetoriginal <- articles_df$snippet
-snippet_analysis <- articles_df %>% select(articleID,year,snippet,snippetoriginal) %>%
+snippet_analysis <- articles %>% select(articleID,year,snippet) %>%
   unnest_tokens(word,snippet) %>%
   anti_join(stop_words, by = "word") %>%
   inner_join(get_sentiments("bing"), by = "word") %>%
   filter(word != "unknown") %>%
-  group_by(articleID, snippetoriginal, sentiment) %>%
+  group_by(articleID, sentiment) %>%
   dplyr::summarise(count = n()) %>% 
   spread(sentiment, count, fill = 0) %>%
   mutate(snippet_sentiment_score = positive - negative) %>%
   mutate(snippet_sentiment = ifelse(snippet_sentiment_score == 0,"Neutral",ifelse(snippet_sentiment_score >0,"Positive", "Negative")))
-
 snippet_analysis <- as.data.frame(snippet_analysis)
+snippet_analysis[,c("positive", "negative", "snippet")] <- NULL
 ```
 
-#Sentiment score calculation for headlines and snippets using Sentimentr
-https://github.com/trinker/sentimentr
+#Sentiment score calculation for headlines and snippets using Sentimentr (https://github.com/trinker/sentimentr)
 ```{r "", echo=FALSE}
-snippet_analysis_sentimentr <- articles_df %>% select(articleID,year,snippet) %>%
+rm(snippet_analysis_sentimentr)
+snippet_analysis_sentimentr <- articles %>% select(articleID,year,snippet) %>%
     dplyr::mutate(snippet_split = get_sentences(snippet)) %$%
-    sentiment_by(snippet_split, list(articleID, year, snippet)) %>%
+    sentiment_by(snippet_split, list(articleID, year)) %>%
     as.data.frame()
 
 snippet_analysis <- inner_join(snippet_analysis, snippet_analysis_sentimentr, by = "articleID")
@@ -251,28 +276,27 @@ snippet_analysis <- inner_join(snippet_analysis, snippet_analysis_sentimentr, by
 
 #Creating df with Headline and snippet sentiment score
 ```{r pressure, echo=FALSE}
-article_df_sentiments <- join(articles_df, headlines_analysis, by = "articleID", type = "left")
-article_sentiments <- join(article_df_sentiments, snippet_analysis, by = "articleID", type = "left")
+article_sentiments <- inner_join(articles, headlines_analysis)
+article_sentiments <- inner_join(article_sentiments, snippet_analysis)
 attach(article_sentiments)
-article_sentiments[,c("negative", "negative.1", "positive", "positive.1", "snippetoriginal.1", "snippetoriginal", "headlineoriginal", "headlineoriginal.1","year.1", "snippet.1", "sd")] <- NULL
 dim(article_sentiments)
+str(article_sentiments)
 ```
 
 #Selecting only snippet sentiments with Non-Null sentiment score
 ```{r "", echo=FALSE}
-dim(article_sentiments[!is.na(article_sentiments$headline_sentiment_score),]) 
-#reducing data drastically (from 8373 articles to 3729 articles) and may impact model accuracy. Hence, ignoring headlines and considering snippets for the articles
+dim(article_sentiments[!is.na(article_sentiments$headline_sentiment_score),])
+#reducing data drastically (from 9335 articles to 4119 articles) and may impact model accuracy. Hence, ignoring headlines and considering snippets for the articles
 dim(article_sentiments[!is.na(article_sentiments$snippet_sentiment_score),])
-article_sentiments_notnull_snippet <- article_sentiments[!is.na(article_sentiments$snippet_sentiment_score),]
-articles_comments_features <- inner_join(article_sentiments_notnull_snippet, articles_comments_features)
-dim(articles_comments_features)
+article_sentiments <- article_sentiments[!is.na(article_sentiments$snippet_sentiment_score),]
+articles_comments <- inner_join(article_sentiments, articles_comments)
+dim(articles_comments)
+str(articles_comments)
 ```
 
 #Are articles more positive or negative (based on snippets sentiment score)?
 ```{r "", echo=FALSE}
-article_sentiment_pattern <- article_sentiments_notnull_snippet %>% select(year, snippet_sentiment) %>% group_by(year, snippet_sentiment) %>% dplyr::summarise(count = n()) %>% ungroup() %>% as.data.frame()
-
-ggplot(article_sentiment_pattern, aes(y = count, x = snippet_sentiment)) +
+article_sentiments %>% select(year, snippet_sentiment) %>% group_by(year, snippet_sentiment) %>% dplyr::summarise(count = n()) %>% ungroup() %>% as.data.frame() %>% ggplot(aes(y = count, x = snippet_sentiment)) +
   geom_bar(stat = 'identity', fill = c("orange", "darkblue", "green","orange", "darkblue", "green")) +
   labs(x="Snippet Sentiment", y = "Count") +
   facet_wrap(~year)
@@ -280,9 +304,8 @@ ggplot(article_sentiment_pattern, aes(y = count, x = snippet_sentiment)) +
 ```
 
 #Sentiment Print Page Analysis (snippet sentiment analysis)
-The below aims to display whether positive articles are placed futher towards the front of the paper than negative articles.
 ```{r "", echo=FALSE}
-article_sentiments_notnull_snippet %>%
+article_sentiments %>%
   filter(snippet_sentiment == "Positive" | snippet_sentiment == "Negative") %>%
   ggplot(aes(x=snippet_sentiment, y=printPage)) +
   geom_boxplot(col = "darkblue", fill = "lightgrey", alpha = 0.4) +
@@ -292,37 +315,42 @@ article_sentiments_notnull_snippet %>%
   facet_wrap(~factor(year), scales = "free", ncol = 1)
 ```
 
-#Most frequent words used in the article’s headline
+#Most frequent words used in the article’s headline ##makewordcloud
 ```{r "", echo=FALSE}
-custom_stop_words <- as.data.frame(stop_words %>% select(word))
-custom_stop_words <- rbind(custom_stop_words, "unknown", "1", "2", "3","6", "don't", "it’s", "2017", "trump's")
-# tokenise text in article headline
-tidy_articles <- articles_df %>%
-  select(articleID, byline, headline, pubDate, typeOfMaterial, articleWordCount, num_comments, year) %>%
-  unnest_tokens(word, headline) %>%
-  anti_join(custom_stop_words, by="word")
+custom_stop_words <- (stop_words %>% select(word))
+custom_stop_words <- rbind(custom_stop_words, "unknown", "1", "2", "3","6", "don’t", "it’s", "2017", "donald", 'obama’s', "u.s", "day", "north", 'trump’s')
+class(custom_stop_words)
 
-tidy_articles %>% 
+# tokenise text in article headline
+articles <- inner_join(articles, articles_comments %>% select(articleID, commentID) %>% group_by(articleID) %>% dplyr::summarize(num_comments = n()))
+
+tidy_articles <- articles %>%
+  select(articleID, byline, headline, pubDate, typeOfMaterial, articleWordCount, num_comments, year) %>%
+  unnest_tokens(word, headline)
+
+#tidy_articles <- join(custom_stop_words, tidy_articles)
+
+tidy_articles <- anti_join(tidy_articles, custom_stop_words)
+ 
+tidy_articles[newDesk %in% top6_newsdesk,]%>% 
   select(year, word) %>%
-  anti_join(custom_stop_words, by = "word") %>%
   group_by(year, word) %>%
   dplyr::summarize(count = n()) %>%
-  top_n(25) %>%
+  arrange(desc(count)) %>%
+  top_n(15) %>%
   ggplot(aes(x= reorder(word, count), y=count)) +
   geom_col(fill = "darkblue") +
-  facet_wrap(~year)+ 
   coord_flip() +
   labs(x= "Word", y= "Count") +
   theme_bw() +
-  ggtitle("Top 25 words used in Articles")
+  ggtitle("Top 20 words used in Articles") +
+  facet_wrap(~year)
+
 ```
 
 #Does the day of the week impact how the sentiments are expressed in articles?
 ```{r "", echo=FALSE}
-article_sentiments_notnull_snippet$pubDate <- ymd_hms(article_sentiments_notnull_snippet$pubDate)
-article_sentiments_notnull_snippet$day_of_week <- wday(article_sentiments_notnull_snippet$pubDate, label = TRUE)
-
-ggplot(data = article_sentiments_notnull_snippet, aes(x=day_of_week, fill = snippet_sentiment)) +
+ggplot(data = article_sentiments, aes(x=art_day_of_week, fill = snippet_sentiment)) +
   geom_bar(position = "fill") +
   scale_fill_manual(values = c("lightgrey", "darkblue", "green")) +
   facet_wrap(~year)
@@ -349,9 +377,7 @@ comment_sentiments <- function(x) {
       mutate(comment_sentiment = ifelse(comment_sentiment_score == 0,"Neutral",ifelse(comment_sentiment_score >0,"Positive", "Negative")))
 }
 
-dim(articles_comments_features)
-
-#Custom function to process 1.7 million records in batches
+#Custom function to process 1.5 million records in batches
 comment_sentiment_loop = function(full_df) {
   first_loop = 50001
   last_loop = 100000
@@ -367,52 +393,37 @@ return(result_collecter)
 }
 
 #Input dataframes
-articles_comments_features_df1 <- articles_comments_features[1:1500000,]
-articles_comments_features_leftout <- articles_comments_features[1500001:nrow(articles_comments_features),]
+articles_comments_df1 <- articles_comments[1:500000,]
+articles_comments_leftout <- articles_comments[500001:nrow(articles_comments),]
 
 #Output dataframes
-output1 <- comment_sentiment_loop(articles_comments_features_df1)
-output_leftout <- comment_sentiments(articles_comments_features_leftout)
+output1 <- comment_sentiment_loop(articles_comments_df1)
+output_leftout <- comment_sentiments(articles_comments_leftout)
 final_comment_sentiment <- rbind(output1, output_leftout)
-dim(final_comment_sentiment)
+str(final_comment_sentiment)
+final_comment_sentiment[,c("negative", "positive")] <- NULL
 
-articles_comments_features <- inner_join(article_sentiments_notnull_snippet, final_comment_sentiment, by = "articleID")
-attach(articles_comments_features)
-articles_comments_features[,c("headlineoriginal","snippetoriginal","negative.x","negative.y","positive.x","positive.y","year.1", "snippet.1")] <- NULL
-```
+articles_comments <- inner_join(articles_comments, final_comment_sentiment, by = "commentID")
+str(articles_comments)
+articles_comments$headline <- NULL
+articles_comments$snippet <- NULL
+articles_comments$articleID.y <- NULL
 
-#Time of the day when comment is made on the article
-```{r "", echo=FALSE}
-articles_comments_features$approveDate <- as.POSIXct(articles_comments_features$approveDate, origin="1970-01-01")
-articles_comments_features$comment_date <- ymd_hms(articles_comments_features$approveDate)
-articles_comments_features$comment_year <- year(articles_comments_features$approveDate)
-articles_comments_features$comment_time <- hour(articles_comments_features$approveDate)
-articles_comments_features$comment_time_of_day <- unclass(as.factor(ifelse(articles_comments_features$comment_time < 12, "Morning", ifelse(articles_comments_features$comment_time <17,  "Afternoon", "Night"))))
-```
-
-#Day of the week when comment is made on the article and article is published
-```{r "", echo=FALSE}
-articles_comments_features$comment_day_of_week <- as.factor(wday(articles_comments_features$approveDate, label = TRUE))
-articles_comments_features$comment_day_of_week1 <- unclass(as.factor(wday(articles_comments_features$approveDate, label = TRUE)))
+#article_sentiments$comment_sentiments <- comment_sentiments(articles_comments)
 ```
 
 #Feature cleaning
 ```{r "", echo=FALSE}
 attach(articles_comments)
-articles_comments_1 <- articles_comments[,c("commentID", "approveDate")] %>% distinct()
-comments_1 <- comments[,c("commentID", "commentBody", "userDisplayName", "userLocation", "recommendations")]
-articles_comments_features <- left_join(articles_comments_features, articles_comments_1, by = "commentID")
-articles_comments_features <- left_join(articles_comments_features, comments_1, by = "commentID")
-articles_comments_features$article_comment_gap <- articles_comments_features$approveDate - articles_comments_features$pubDate
-units(articles_comments_features$article_comment_gap) <- "hours"
-articles_comments_features$article_comment_gap <- as.numeric(articles_comments_features$article_comment_gap)
-articles_comments_features[,c("year.1", "snippet.1", "negative", "positive", "snippetoriginal", "headlineoriginal", "commentBody.x", "commentBody.y","userDisplayName", "userLocation", "approveDate.y")] <- NULL
+articles_comments$art_com_timegap <- articles_comments$approveDate - articles_comments$pubDate
+units(articles_comments$art_com_timegap) <- "hours"
+articles_comments$art_com_timegap <- as.numeric(articles_comments$art_com_timegap)
 ```
 
 #Most frequent words used in the comments
 ```{r "", echo=FALSE}
 custom_stop_words_2 <- as.data.frame(stop_words %>% select(word))
-custom_stop_words_2 <- rbind(custom_stop_words, "unknown", "1", "2", "3","6", "don't", "it’s", "2017", "br", "trump's", "president", "time")
+custom_stop_words_2 <- rbind(custom_stop_words, "unknown", "1", "2", "3","6", "don't", "it’s", "2017", "br", "trump’s", "president", "time", "trumps", "im", "dont", "republican")
 
 # tokenise text in comments
 tidy_comments <- function(df) {
@@ -440,27 +451,126 @@ return(tidy_comment_collecter)
 }
 
 #Input dataframes
-articles_comments_features_df1 <- articles_comments_features[1:1000000,]
-articles_comments_features_df2 <- articles_comments_features[1000001:nrow(articles_comments_features),]
+articles_comments_df1 <- articles_comments[1:500000,]
+articles_comments_df2 <- articles_comments[500001:nrow(articles_comments),]
 
 #Output dataframes
-output1 <- tidy_comment_loop(articles_comments_features_df1)
-output2 <- tidy_comments(articles_comments_features_df2[1:10,])
-tidy_comments_output <- rbind(output1, output2) %>% group_by(year, word) %>% anti_join(custom_stop_words_2) %>% dplyr::summarize(count = sum(count)) %>% top_n(25)
+output1 <- tidy_comment_loop(articles_comments_df1)
+output2 <- tidy_comments(articles_comments_df2)
+tidy_comments_output <- rbind(output1, output2) %>% group_by(word) %>% anti_join(custom_stop_words_2) %>% dplyr::summarize(count = sum(count)) %>% arrange(desc(count)) %>% top_n(25)
 
 dim(tidy_comments_output)
 
   tidy_comments_output %>%
   ggplot(aes(x= reorder(word, count), y=count)) +
   geom_col(fill = "darkblue") +
-  facet_wrap(~year)+ 
   coord_flip() +
   labs(x= "Comment Word", y= "Count") +
   theme_bw()+
   ggtitle("Top 25 words used in Comments")
 ```
 
-#Total words in each comment
+#Most frequent words used popular comments
+```{r "", echo=FALSE}
+custom_stop_words_2 <- as.data.frame(stop_words %>% select(word))
+custom_stop_words_2 <- rbind(custom_stop_words, "unknown", "1", "2", "3","6", "don't", "it’s", "2017", "br", "trump’s", "president", "time", "trumps", "im", "dont", "republican")
+
+# tokenise text in comments
+tidy_comments <- function(df) {
+  tidy_comments_df <- df %>%
+  select(year, commentID, commentBody) %>%
+  unnest_tokens(word, commentBody) %>%
+  anti_join(custom_stop_words_2, by="word") %>%
+  group_by(year, word) %>%
+  dplyr::summarize(count = n())
+}
+
+#Custom function to process 1.7 million comments in batches to find top 25 words
+tidy_comment_loop = function(full_df) {
+first_loop = 50001
+  last_loop = 100000
+  tidy_comment_collecter = tidy_comments(full_df[c(1:50000),])
+  while (last_loop <= nrow(full_df)){
+    partial_results <- tidy_comments(full_df[c(first_loop:last_loop),])
+    first_loop <- 1+last_loop
+    last_loop <- last_loop + 50000
+    tidy_comment_collecter <- rbind(tidy_comment_collecter, partial_results)
+    print(last_loop)
+  }
+return(tidy_comment_collecter)
+}
+
+#Input dataframes
+articles_comments_df1 <- articles_comments[1:500000,]
+articles_comments_df2 <- articles_comments[500001:nrow(articles_comments),]
+
+#Output dataframes
+output1 <- tidy_comment_loop(articles_comments_df1)
+output2 <- tidy_comments(articles_comments_df2)
+tidy_comments_output <- rbind(output1, output2) %>% group_by(word) %>% anti_join(custom_stop_words_2) %>% dplyr::summarize(count = sum(count)) %>% arrange(desc(count)) %>% top_n(25)
+
+dim(tidy_comments_output)
+
+  tidy_comments_output %>%
+  ggplot(aes(x= reorder(word, count), y=count)) +
+  geom_col(fill = "darkblue") +
+  coord_flip() +
+  labs(x= "Comment Word", y= "Count") +
+  theme_bw()+
+  ggtitle("Top 25 words used in Comments")
+```
+
+#Most frequent words used in the Non-popular comments
+```{r "", echo=FALSE}
+custom_stop_words_2 <- as.data.frame(stop_words %>% select(word))
+custom_stop_words_2 <- rbind(custom_stop_words, "unknown", "1", "2", "3","6", "don't", "it’s", "2017", "br", "trump’s", "president", "time", "trumps", "im", "dont", "republican")
+
+# tokenise text in comments
+tidy_comments <- function(df) {
+  tidy_comments_df <- df %>%
+  select(year, commentID, commentBody) %>%
+  unnest_tokens(word, commentBody) %>%
+  anti_join(custom_stop_words_2, by="word") %>%
+  group_by(year, word) %>%
+  dplyr::summarize(count = n())
+}
+
+#Custom function to process 1.7 million comments in batches to find top 25 words
+tidy_comment_loop = function(full_df) {
+first_loop = 50001
+  last_loop = 100000
+  tidy_comment_collecter = tidy_comments(full_df[c(1:50000),])
+  while (last_loop <= nrow(full_df)){
+    partial_results <- tidy_comments(full_df[c(first_loop:last_loop),])
+    first_loop <- 1+last_loop
+    last_loop <- last_loop + 50000
+    tidy_comment_collecter <- rbind(tidy_comment_collecter, partial_results)
+    print(last_loop)
+  }
+return(tidy_comment_collecter)
+}
+
+#Input dataframes
+articles_comments_df1 <- articles_comments[1:500000,]
+articles_comments_df2 <- articles_comments[500001:nrow(articles_comments),]
+
+#Output dataframes
+output1 <- tidy_comment_loop(articles_comments_df1)
+output2 <- tidy_comments(articles_comments_df2)
+tidy_comments_output <- rbind(output1, output2) %>% group_by(word) %>% anti_join(custom_stop_words_2) %>% dplyr::summarize(count = sum(count)) %>% arrange(desc(count)) %>% top_n(25)
+
+dim(tidy_comments_output)
+
+  tidy_comments_output %>%
+  ggplot(aes(x= reorder(word, count), y=count)) +
+  geom_col(fill = "darkblue") +
+  coord_flip() +
+  labs(x= "Comment Word", y= "Count") +
+  theme_bw()+
+  ggtitle("Top 25 words used in Comments")
+```
+
+#Total number words in each comment
 ```{r "", echo=FALSE}
 word_count_comment <- function(df) {
   word_count_comment_df <- df %>%
@@ -484,12 +594,12 @@ return(comment_word_count_collecter)
 }
 
 #Output dataframes
-output_wc_1 <- comment_word_count_loop(articles_comments_features_df1)
-output_wc_2 <- word_count_comment(articles_comments_features_df2)
+output_wc_1 <- comment_word_count_loop(articles_comments_df1)
+output_wc_2 <- word_count_comment(articles_comments_df2)
 comment_word_count_output <- rbind(output_wc_1, output_wc_2)
 ```
 
-#Number of sentences in the comment
+#Total Number of sentences in the comment
 ```{r "", echo=FALSE}
 sen_count <- function(df) {
                   output <- c()
@@ -517,73 +627,32 @@ return(sen_count_collecter)
 }
 
 #Output dataframes
-output1 <- sen_count_loop(articles_comments_features_df1)
-output2 <- sen_count(articles_comments_features_df2)
+output1 <- sen_count_loop(articles_comments_df1)
+output2 <- sen_count(articles_comments_df2)
 sen_count_output <- c(output1, output2)
-commentID_df <- c(articles_comments_features_df1$commentID, articles_comments_features_df2$commentID)
+commentID_df <- c(articles_comments_df1$commentID, articles_comments_df2$commentID)
 sen_count_df <- data.frame(commentID_df, sen_count_output)
 
 ##sen_count_df 
 ```
 
-#Joiningword and sentence count for comments
+#Joining word and sentence count for comments
 ```{r "", echo=FALSE}
 comment_word_sen_count <- inner_join(sen_count_df,comment_word_count_output, by = c("commentID_df" = "commentID"))
-articles_comments_features <- inner_join(articles_comments_features,  comment_word_sen_count, by = c("commentID" = "commentID_df"))
+articles_comments <- inner_join(articles_comments,comment_word_sen_count, by = c("commentID" = "commentID_df"))
+
 ```
 
 #Average word/sentence in the comment
 ```{r "", echo=FALSE}
-articles_comments_features$words_p_sen <- articles_comments_features$word_count.y/articles_comments_features$sen_count_output 
-head(articles_comments_features)
-```
+articles_comments$words_p_sen <- articles_comments$word_count.y/articles_comments$sen_count_output 
+articles_comments$word_count.y <- NULL
+articles_comments$word_count.x <- NULL
+articles_comments$articleID <- articles_comments$articleID.x
+articles_comments$articleID.x <- NULL
+head(articles_comments)
 
-#% of profanity words in the comment
-```{r "", echo=FALSE}
-badwords<-readLines("http://www.cs.cmu.edu/~biglou/resources/bad-words.txt")
-badwords <- data.frame(badwords)
-tidy_comments_words <- rbind(output1, output2)
-
-
-#badwords<-badwords[-(which(badwords%in%c("refugee","reject","remains","screw","welfare", "sweetness","shoot","sick","shooting","servant","sex","radical","racial","racist","republican","public","molestation","mexican","looser","lesbian","liberal","kill","killing","killer","heroin","fraud","fire","fight","fairy","^die","death","desire","deposit","crash","^crim","crack","^color","cigarette","church","^christ","canadian", "cancer","^catholic","cemetery","buried","burn","breast","^bomb","^beast","attack","australian","balls","baptist","^addict","abuse","abortion","amateur","asian","aroused","angry","arab","bible")==TRUE))]
-
-
-
-library(tm)
-library(SnowballC)
-profanityList  <- read.csv("googleProfanity.txt",header = FALSE,stringsAsFactors = FALSE)
-removeProfanity <- content_transformer(function(x) {
-                for(i in 1:nrow(profanityList)){
-                        x <-  gsub(profanityList$V1[i],"", x)
-                       }
-                return(x)
-                })
-removeSpecialChars  <- content_transformer(function(x) {
-        x <- gsub('[])(;:#%$^*\\~{}[&+=@/"`|<>_]+', "", x)
-        return(x) })
-
-cleanCorpus  <- function(corpus){
-        
-        corpus.tmp <- tm_map(corpus,content_transformer(tolower))
-        corpus.tmp <- tm_map(corpus.tmp,content_transformer(removePunctuation))
-
-        corpus.tmp <- tm_map(corpus.tmp,content_transformer(removeNumbers))
-        corpus.tmp <- tm_map(corpus.tmp,removeWords,stopwords("english"))
-        corpus.tmp <- tm_map(corpus.tmp,removeProfanity)
-        
-        corpus.tmp <- tm_map(corpus.tmp,content_transformer(stemDocument))
-        corpus.tmp <- tm_map(corpus.tmp,content_transformer(stripWhitespace))
-        
-        corpus.tmp <- tm_map(corpus.tmp,removeSpecialChars)              
-        corpus.tmp <- tm_map(corpus.tmp,PlainTextDocument)
-        
-        return(corpus.tmp)
-        }
-```
-
-#Lexical density of the comment
-```{r "", echo=FALSE}
-
+cor(articles_comments$words_p_sen, articles_comments$recommendations)
 ```
 
 #Do certain words in headlines elicit more comments
@@ -591,22 +660,14 @@ cleanCorpus  <- function(corpus){
 # create a df of the top 25 used words
 attach(tidy_articles)
 tidy_articles$word1 <- gsub("[^A-Za-z0-9]", "", tidy_articles$word)
-top_25_headline_words <- tidy_articles %>% select(year, word1) %>% dplyr::count(word1) %>% top_n(25)
+top_25_headline_words <- tidy_articles %>% select(year, word1) %>% dplyr::count(word1)
 
 # join articles metadata to the top 25 words df
 top_25_headline_words <- tidy_articles %>%
   inner_join(top_25_headline_words, by = c("word"= "word1"))
 
 # boxplot
-  top_25_headline_words %>% filter(year == 2017) %>%
-  ggplot(aes(x=word1, y= num_comments)) +
-  geom_boxplot(col = "darkblue", fill = "lightgrey", alpha = 0.2) +
-  labs(x= "Word", y= "Number of Comments") +
-  coord_flip() +
-  theme_bw()
-
-  top_25_headline_words %>% filter(year == 2018) %>%
-  ggplot(aes(x=word1, y= num_comments)) +
+  top_25_headline_words %>% select(word,num_comments) %>% group_by(word) %>% arrange(desc(num_comments)) %>% distinct() %>% head(25) %>% ggplot(aes(x=word, y= num_comments)) +
   geom_boxplot(col = "darkblue", fill = "lightgrey", alpha = 0.2) +
   labs(x= "Word", y= "Number of Comments") +
   coord_flip() +
@@ -615,85 +676,481 @@ top_25_headline_words <- tidy_articles %>%
 
 #Relationship between Article word count and number of comments
 ```{r "", echo=FALSE}
-cor(articles_df$articleWordCount, articles_df$num_comments)
-ggplot(data = articles_df, aes(x= articleWordCount, y= num_comments)) +
+cor(articles$articleWordCount, articles$num_comments)
+ggplot(data = articles, aes(x= articleWordCount, y= num_comments)) +
   geom_point(col = "darkblue", alpha = 0.5) +
   geom_smooth(method = "lm", linetype = 2, se = F, col = "red") +
   labs(x= "Word Count", y= "Number of comments") +
   theme_bw()
-#The plot below indicates a weak positive relationship between the article’s wordcount and the number of comments it receives, with correlation = 0.1047425
+#The plot below indicates a weak positive relationship between the article’s wordcount and the number of comments it receives, with correlation = 0.08073281
 ```
 
 #Type of material vs number of comments in 2017 and 2018
 Does the type of materials in March 2018 lead to different numbers of comments?
 ```{r "", echo=FALSE}
-ggplot(data = articles_df, aes(x=typeOfMaterial, y=num_comments)) +
+ggplot(data = articles, aes(x=typeOfMaterial, y=num_comments)) +
   geom_boxplot(fill = "grey", col = "blue") +
   coord_flip() + scale_y_continuous(trans="log10", limits=c(NA,2000))
   labs(x= "Type of Material", y= "Number of comments") + 
   theme_bw()
 ```
 
-#Do certain words in comments elicit more recommendations ##incomplete
+#Feature reduction
 ```{r "", echo=FALSE}
-# create a df of the top 25 used words
-attach(tidy_comments_output)
-tidy_articles$word1 <- gsub("[^A-Za-z0-9]", "", tidy_articles$word)
-top_25_headline_words <- tidy_articles %>% select(year, word1) %>% dplyr::count(word1) %>% top_n(25)
+#articles_comments_all <- articles_comments
+articles_comments <- articles_comments_all
+articles_comments <- articles_comments %>% select(articleID, commentID, newDesk, printPage, sectionName, year, art_day_of_week1, headline_sentiment_score, Headline_sentiment, snippet_sentiment_score, snippet_sentiment, commentBody, editorsSelection, recommendations, replyCount, comment_time, comment_time_of_day, comment_day_of_week1, comment_sentiment_score, comment_sentiment, art_com_timegap, sen_count_output, words_p_sen)
 
-# join articles metadata to the top 25 words df
-top_25_headline_words <- tidy_articles %>%
-  inner_join(top_25_headline_words, by = c("word"= "word1"))
-
-# boxplot
-  top_25_headline_words %>% filter(year == 2017) %>%
-  ggplot(aes(x=word1, y= num_comments)) +
-  geom_boxplot(col = "darkblue", fill = "lightgrey", alpha = 0.2) +
-  labs(x= "Word", y= "Number of Comments") +
-  coord_flip() +
-  theme_bw()
-
-  top_25_headline_words %>% filter(year == 2018) %>%
-  ggplot(aes(x=word1, y= num_comments)) +
-  geom_boxplot(col = "darkblue", fill = "lightgrey", alpha = 0.2) +
-  labs(x= "Word", y= "Number of Comments") +
-  coord_flip() +
-  theme_bw()
+str(articles_comments)
+articles_comments$Headline_sentiment <- as.factor(articles_comments$Headline_sentiment)
+articles_comments$snippet_sentiment <- as.factor(articles_comments$snippet_sentiment)
+articles_comments$comment_sentiment <- as.factor(articles_comments$comment_sentiment)
+articles_comments$editorsSelection <- as.character(articles_comments$editorsSelection)
+articles_comments$editorsSelection[editorsSelection == "True"] <- "1"
+articles_comments$editorsSelection[editorsSelection == "False"] <- "0"
+unique(articles_comments$editorsSelection)
+articles_comments$editorsSelection <- as.factor(articles_comments$editorsSelection)
 ```
 
-#Correlation between comments upvotes with day of the week
+#Does Editor's pick impact the popularity of comment
 ```{r "", echo=FALSE}
-cor(articles_comments_features$comment_day_of_week1, articles_comments_features$recommendations)
-ggplot(data = articles_comments_features, aes(x= comment_day_of_week1, y= recommendations)) +
+plot(table(articles_comments$comment_pop_label, articles_comments$editorsSelection), xlab = "Comment Popularity", ylab = "Editor's pick", col = c("orange", "darkblue"), main = "Popularity of comments vs Editor's pick")
+rm(data_selected)
+```
+
+#Creating classes for the target variable (Recommendations)
+```{r "", echo=FALSE}
+table(droplevels(articles_comments$newDesk))
+fivenum(articles_comments$recommendations)
+articles_comments %>% ggplot(aes(x= recommendations)) +
+  geom_histogram(col = "darkblue", fill = "white", binwidth = 1000) +
+  labs(x="Comment Recommendations", y="")+
+  theme_minimal() + facet_wrap(~year)
+articles_comments$upvotes_classes[articles_comments$recommendations <= 2] <- "Low Popularity"
+articles_comments$upvotes_classes[recommendations >2 & recommendations <= 10] <- "Medium Popularity"
+articles_comments$upvotes_classes[recommendations > 10] <- "High Popularity"
+barplot(table(factor(articles_comments$upvotes_classes, levels = c('Low Popularity', 'Medium Popularity', 'High Popularity'))))
+
+articles_comments$upvotes_classes1[articles_comments$recommendations <= 3] <- 0
+articles_comments$upvotes_classes1[recommendations >3] <- 1
+barplot(table(factor(articles_comments$upvotes_classes1, levels = c(0, 1))))
+
+articles_comments$comment_pop_label[articles_comments$recommendations <= 3] <- "Non Popular"
+articles_comments$comment_pop_label[recommendations >3] <- "Popular"
+```
+
+#Popular comments distribution across News Desks
+```{r "", echo=FALSE}
+attach(articles_comments)
+data_selected <- articles_comments[newDesk %in% top6_newsdesk, c("newDesk", "comment_pop_label")]
+plot(table(droplevels(data_selected$newDesk), data_selected$comment_pop_label), xlab = "News Desk", ylab = "Popularity", col = c("orange", "darkblue"), main = "Popular comments distribution across News Desks")
+rm(data_selected)
+```
+
+#Comment popularity by article sentiments
+```{r "", echo=FALSE}
+data_selected <- articles_comments[newDesk %in% top6_newsdesk,c("snippet_sentiment", "comment_pop_label")]
+plot(table(data_selected$comment_pop_label, data_selected$snippet_sentiment) , ylab = "Article Sentiment", xlab = "Comment Popularity", col = c("orange", "darkblue", "red"), main = "Popular comments distribution by Article Sentiments")
+rm(data_selected)
+```
+
+#Spatial journey of Top commenters drawing maximum upvotes
+```{r "", echo=FALSE}
+data_selected$pubDate <- year(data_selected$pubDate)
+popular_readers <- data_selected %>% 
+  select(userDisplayName, pubDate, recommendations) %>% distinct(userDisplayName, pubDate, recommendations) %>%
+  group_by(userDisplayName, pubDate) %>%
+  dplyr::summarise(average_recom = median(recommendations)) %>%
+  spread(pubDate, average_recom)
+
+popular_readers <- popular_readers[!is.na(popular_readers$`2017`),]
+popular_readers <- popular_readers[!is.na(popular_readers$`2018`),]
+popular_readers <- popular_readers %>% arrange(desc(`2017`), desc(`2018`)) %>% head(6)
+
+ggplot(popular_readers, aes(x=userDisplayName, y=`2017`)) + geom_bar(stat="identity", fill = "darkblue") +
+  labs(x="commenters", y="upvotes received") + coord_flip() + ggtitle("Top 6 commenters of 2017 with highest upvotes")
+
+ggplot(popular_readers, aes(x=userDisplayName, y=`2018`)) + geom_bar(stat="identity", fill = "orange") + 
+  labs(x="commenters", y="upvotes received") + coord_flip() + ggtitle("Top 6 commenters of 2018 with highest upvotes")
+```
+
+#Spatial journey of Top authors in terms of no. of articles written
+```{r "", echo=FALSE}
+data_selected$pubDate <- year(data_selected$pubDate)
+popular_authors <- data_selected %>% 
+  select(byline, pubDate, articleID) %>% distinct(articleID, byline, pubDate) %>%
+  group_by(byline, pubDate) %>%
+  dplyr::summarise(article_count = n()) %>%
+  spread(pubDate, article_count)
+
+popular_authors <- popular_authors[!is.na(popular_authors$`2017`),]
+popular_authors <- popular_authors[!is.na(popular_authors$`2018`),]
+popular_authors<- popular_authors %>% arrange(desc(`2017`), desc(`2018`)) %>% head(6)
+
+ggplot(popular_authors, aes(x=byline, y=`2017`)) + geom_bar(stat="identity", fill = "darkblue") + 
+  labs(x="authors", y="article written") + coord_flip() + ggtitle("Top 6 authors of 2017 with max number of articles")
+
+ggplot(popular_authors, aes(x=byline, y=`2018`)) + geom_bar(stat="identity", fill = "orange") + 
+  labs(x="authors", y="article written") + coord_flip() + ggtitle("Top 6 authors of 2018 with max number of articles")
+```
+
+#Spatial journey of Top authors drawing maximum comments
+```{r "", echo=FALSE}
+data_selected$pubDate <- year(data_selected$pubDate)
+popular_authors <- data_selected %>% 
+  select(byline, pubDate, articleID) %>% distinct(articleID, byline, pubDate) %>%
+  group_by(byline, pubDate) %>%
+  dplyr::summarise(article_count = n()) %>%
+  spread(pubDate, article_count)
+
+popular_authors <- popular_authors[!is.na(popular_authors$`2017`),]
+popular_authors <- popular_authors[!is.na(popular_authors$`2018`),]
+popular_authors<- popular_authors %>% arrange(desc(`2017`), desc(`2018`)) %>% head(6)
+
+ggplot(popular_authors, aes(x=byline, y=`2017`)) + geom_bar(stat="identity", fill = "darkblue") + 
+  labs(x="authors", y="article written") + coord_flip() + ggtitle("Top 6 authors of 2017 with max number of articles")
+
+ggplot(popular_authors, aes(x=byline, y=`2018`)) + geom_bar(stat="identity", fill = "orange") + 
+  labs(x="authors", y="article written") + coord_flip() + ggtitle("Top 6 authors of 2018 with max number of articles")
+```
+
+#Comment popularity by comment sentiments
+```{r "", echo=FALSE}
+data_selected <- articles_comments[newDesk %in% top6_newsdesk, c("comment_sentiment", "comment_pop_label")]
+plot(table(data_selected$comment_pop_label, data_selected$comment_sentiment) , ylab = "Comment Sentiment", xlab = "Comment Popularity", col = c("orange", "darkblue", "red"), main = "Popular comments distribution by Comment Sentiments")
+rm(data_selected)
+```
+
+#Correlation between comments popularity with day of the week
+```{r "", echo=FALSE}
+cor(articles_comments$comment_day_of_week1, articles_comments$recommendations)
+cor(articles_comments$comment_day_of_week1, articles_comments$recommendations_new)
+data_selected1 <- articles_comments[newDesk %in% top6_newsdesk,]
+data_selected1[,c("comment_day_of_week1", "comment_time_of_day")] <- as.factor(data_selected1[,c("comment_day_of_week1", "comment_time_of_day")])
+str(data_selected1)
+  ggplot(data = data_selected1, aes(y= comment_day_of_week1, x= comment_pop_label)) +
   geom_point(col = "darkblue", alpha = 0.5) +
   geom_smooth(method = "lm", linetype = 2, se = F, col = "red") +
-  labs(x= "Day of week", y= "Number of upvotes") +
+  labs(x= "Day of week", y= "Comment Popularity") +
   theme_bw()
+rm(data_selected1)
 ```
 
-#Correlation between comments upvotes with time of the day
+#Correlation between comments popularity with time of the day
 ```{r "", echo=FALSE}
-cor(articles_comments_features$comment_time_of_day, articles_comments_features$recommendations)
-ggplot(data = articles_comments_features, aes(x= comment_time_of_day, y= recommendations)) +
+cor(articles_comments$comment_time_of_day, articles_comments$recommendations)
+cor(articles_comments$comment_time_of_day, articles_comments$recommendations_new)
+ggplot(data = articles_comments, aes(x= comment_time_of_day, y= recommendations)) +
   geom_point(col = "darkblue", alpha = 0.5) +
   geom_smooth(method = "lm", linetype = 2, se = F, col = "red") +
   labs(x= "Time of day", y= "Number of upvotes") +
   theme_bw()
 ```
 
-#Correlation between comments sentiments with the upvotes received
+#Top commenters
 ```{r "", echo=FALSE}
-cor(articles_comments_features$comment_sentiment_score, articles_comments_features$recommendations)
-ggplot(data = articles_comments_features, aes(x= comment_sentiment_score, y= recommendations)) +
-  geom_point(col = "darkblue", alpha = 0.5) +
-  geom_smooth(method = "lm", linetype = 2, se = F, col = "red") +
-  labs(x= "Comment_sentiments", y= "Number of upvotes") +
-  theme_bw()
+top_commenter_data <- left_join(articles_comments, comments[,], join)
+str(comments)
 ```
 
-#Removing unwanted features
+#Correlation between popularity and words_p_sen in Comments
 ```{r "", echo=FALSE}
-attach(articles_comments_features)
-str(articles_comments_features)
-articles_comments_features[,c("headline", "snippet", "typeOfMaterial", "comment_year", "approveDate.x")] <- NULL
+aov1 = aov(articles_comments$words_p_sen ~ articles_comments$upvotes_classes1)
+summary(aov1)
+```
+
+#Correlation between popularity and Number of sentences in Comments
+```{r "", echo=FALSE}
+aov1 = aov(articles_comments$sen_count_output ~ articles_comments$upvotes_classes1)
+summary(aov1)
+```
+
+#Correlation between popularity and time gap between comment and article publishing
+```{r "", echo=FALSE}
+aov1 = aov(articles_comments$art_com_timegap ~ articles_comments$upvotes_classes1)
+summary(aov1)
+```
+
+
+#Building Model
+
+#Build Models - Prep work
+```{r "", echo=FALSE}
+attach(articles_comments)
+articles_comments_test <- articles_comments[,c("commentID", "commentBody", "upvotes_classes", "upvotes_classes1")]
+#Clean up the comments
+articles_comments_test$commentBody <- gsub('b"|b\'|\n|\\\\|\\"', "", articles_comments_test$commentBody)
+articles_comments_test$commentBody <- gsub("([<>])|[[:punct:]]", "\\1", articles_comments_test$commentBody)
+#Randomly sample training records
+all_ids = articles_comments_test$commentID
+length(all_ids)
+set.seed(1234)
+training_ids = sample(all_ids,0.7*nrow(articles_comments_test))
+testing_ids = setdiff(all_ids,training_ids)
+#Creating  subsets
+training = articles_comments_test[articles_comments_test$commentID %in% training_ids,]
+testing = articles_comments_test[articles_comments_test$commentID %in% testing_ids,]
+head(training)
+head(testing)
+plot(table(training$upvotes_classes))
+plot(table(testing$upvotes_classes))
+plot(table(training$upvotes_classes1))
+plot(table(testing$upvotes_classes1))
+
+#Words to skip - to avoid inflated counts
+stop_words2 = c("the","to","of","for","br","this","for", "in","a","b","and","on","is","by","that","with","from","as","it","are","have","be","us","an","was","u","i")
+
+#Tokenize the comments
+train_tokens = itoken(training$commentBody, 
+             preprocessor = tolower, 
+             tokenizer = word_tokenizer, 
+             ids = training$id,
+             progressbar = TRUE)
+
+#Create universe of words from the entire training dataset. This is referred to as the vocabulary or dictionary of the problem.
+vocab = create_vocabulary(train_tokens,stopwords = stop_words2)
+
+#Trim the vocabulary a little bit
+pruned_vocab = prune_vocabulary(vocab,term_count_min = 10, doc_proportion_max = 0.50, doc_proportion_min = 0.001, vocab_term_max = 40000)
+
+#Index each token
+  vectorizer = vocab_vectorizer(pruned_vocab)
+  t1 = Sys.time()
+  
+#bin counts falling into each token
+  dtm_train = create_dtm(train_tokens, vectorizer)
+  print(difftime(Sys.time(), t1, units = 'sec'))
+
+# Dimension check
+dim(dtm_train)
+
+# check the first 6 rows
+#head(data.frame(as.matrix(dtm_train)))
+```
+
+#MODEL 1 - 4 fold cross-validation (normal Nfold GLm)
+```{r "", echo=FALSE}
+#Now we are ready to fit our first model. Here we will use the glmnet package to fit a logistic regression model with an L1 penalty and 4 fold cross-validation.
+
+set.seed(201L)
+NFOLDS = 4
+t1 = Sys.time()
+#row normalize the data 
+dtm_train_norm = normalize(dtm_train, "l1")
+#head(dtm_train_norm)
+unigram_classifier = cv.glmnet(x = dtm_train_norm, y = training$upvotes_classes1, 
+                              family = 'binomial', 
+                              # L1 penalty
+                              alpha = 1,
+                              # interested in the area under ROC curve
+                              type.measure = "auc",
+                              grouped = TRUE,
+                              # 4-fold cross-validation
+                              nfolds = NFOLDS,
+                              # high value is less accurate, but has faster training
+                              thresh = 1e-3,
+                              # again lower number of iterations for faster training
+                              maxit = 1e3)
+
+print(difftime(Sys.time(), t1, units = 'sec'))
+print(paste("max AUC =", round(max(unigram_classifier$cvm), 4)))
+plot(unigram_classifier)
+print(unigram_classifier)
+
+# Prepare the testing set by tokenizing and vectorizing using the training scheme
+testing_tokens = itoken(testing$commentBody,
+                        ids = testing$id,
+                        prep_fun= tolower,
+                        tokenizer =word_tokenizer,  
+                        progressbar = TRUE)
+dtm_test = create_dtm(testing_tokens, vectorizer)
+
+#row normalize the data 
+dtm_test_norm = normalize(dtm_test, "l1")
+preds = predict(unigram_classifier , dtm_test_norm, type = 'response', s = "lambda.min")
+dim(dtm_test_norm)
+
+#Evaluate model performance
+#Create a prediction object
+prediction = prediction(preds, testing$upvotes_classes1)
+
+##Cross validation deviance on training data shd be approximately same as deviance on test data##
+
+#infer True postive and false positve rates
+perf = performance(prediction, measure = "tpr", x.measure = "fpr")
+ 
+#accuracy and area under the curve
+acc = performance(prediction, measure = "acc")
+auc = performance(prediction, measure = "auc")
+
+#Plot accuracy at different cutoffs
+plot(acc,main=" Unigram Model Accuracy",col="orange",lwd=3)
+grid()
+
+#The model’s accuracy at cutoff 0.5 is approximately 0.57
+
+roc.data = data.frame(fpr=unlist(perf@x.values),
+                       tpr=unlist(perf@y.values))
+ggplot(roc.data, aes(x=fpr, ymin=0, ymax=tpr)) +
+    geom_ribbon(alpha=0.8) +
+    geom_line(aes(y=tpr)) +
+    geom_abline(slope=1, intercept=0, linetype='dashed') +
+    ggtitle("ROC Curve") +
+    ylab('True Positive Rate') +
+    xlab('False Positive Rate')
+
+coef_mat = as.matrix(coef(unigram_classifier, s="lambda.min"))
+coef_mat = coef_mat[order(coef_mat),]
+
+glmnet:::auc((as.numeric(testing$upvotes_classes1)), preds)
+test_result<-data.frame(cbind(testing$upvotes_classes1,ifelse(preds>0.58,1,0)))
+confusionMatrix(test_result$V1,test_result$X1)
+```
+
+#MODEL 2 - Method2-N-gram (Can we improve the model? Definitely - we can use n-grams instead of words. Here we will use up to 2-grams)
+```{r "", echo=FALSE}
+#MODEL 1b - 4 fold cross-validation (normal Nfold GLm) #http://mvpa.blogspot.com/2015/12/balanced-accuracy-what-and-why.html (why use balanced)
+
+set.seed(201L)
+NFOLDS = 4
+t1 = Sys.time()
+#row normalize the data 
+dtm_train_norm2 = normalize(dtm_train2, "l1")
+head(dtm_train_norm2)
+unigram_classifier2 = cv.glmnet(x = as.matrix(dtm_train_norm2), y = training$upvotes_classes1, 
+                              family = 'binomial', 
+                              # L1 penalty
+                              alpha = 1,
+                              # interested in the area under ROC curve
+                              type.measure = "auc",
+                              grouped = TRUE,
+                              # 10-fold cross-validation
+                              nfolds = NFOLDS,
+                              # high value is less accurate, but has faster training
+                              thresh = 1e-3,
+                              # again lower number of iterations for faster training
+                              maxit = 1e3)
+
+print(difftime(Sys.time(), t1, units = 'sec'))
+print(paste("max AUC =", round(max(unigram_classifier2$cvm), 4)))
+plot(unigram_classifier2)
+print(unigram_classifier2)
+
+# Prepare the testing set by tokenizing and vectorizing using the training scheme
+testing_tokens = itoken(testing$commentBody,
+                        ids = testing$id,
+                        prep_fun= tolower,
+                        tokenizer =word_tokenizer,  
+                        progressbar = TRUE)
+dtm_test2 = create_dtm(testing_tokens, vectorizer2)
+
+#row normalize the data 
+dtm_test_norm2 = normalize(dtm_test2, "l1")
+preds2 = predict(unigram_classifier2 , dtm_test_norm2  , type = 'response', s = "lambda.min")
+#head(preds2)
+dim(preds2)
+
+#Evaluate model performance
+#Create a prediction object
+prediction2 = prediction(preds2, testing$upvotes_classes1)
+
+##Cross validation deviance on training data shd be approximately same as deviance on test data##
+
+#infer True postive and false positve rates
+perf = performance(prediction2, measure = "tpr", x.measure = "fpr")
+ 
+#accuracy and area under the curve
+acc = performance(prediction2, measure = "acc")
+auc = performance(prediction2, measure = "auc")
+
+#Plot accuracy at different cutoffs
+plot(acc,main=" Unigram Model Accuracy 2-N gram",col="orange",lwd=3)
+grid()
+
+#The model’s accuracy at cutoff 0.5 is approximately 0.57
+
+roc.data = data.frame(fpr=unlist(perf@x.values),
+                       tpr=unlist(perf@y.values))
+ggplot(roc.data, aes(x=fpr, ymin=0, ymax=tpr)) +
+    geom_ribbon(alpha=0.8) +
+    geom_line(aes(y=tpr)) +
+    geom_abline(slope=1, intercept=0, linetype='dashed') +
+    ggtitle("ROC Curve") +
+    ylab('True Positive Rate') +
+    xlab('False Positive Rate')
+
+coef_mat = as.matrix(coef(unigram_classifier2, s="lambda.min"))
+coef_mat = coef_mat[order(coef_mat),]
+
+glmnet:::auc((as.numeric(testing$upvotes_classes1)), preds2)
+test_result<-data.frame(cbind(testing$upvotes_classes1,ifelse(preds2>0.62,1,0)))
+confusionMatrix(test_result$V1,test_result$X1)
+```
+
+#MODEL 3 - TFIDF
+```{r "", echo=FALSE}
+# define tfidf model
+tfidf = TfIdf$new()
+# fit model to train data and transform train data with fitted model
+dtm_train_tfidf = fit_transform(dtm_train, tfidf)
+# tfidf modified by fit_transform() call!
+# apply pre-trained tf-idf transformation to test data
+dtm_test_tfidf  = create_dtm(testing_tokens, vectorizer) %>% 
+  transform(tfidf)
+
+#Model
+t1 = Sys.time()
+glmnet_classifier4 = cv.glmnet(x = dtm_train_tfidf, y = training$upvotes_classes1, 
+                              family = 'binomial', 
+                              alpha = 1,
+                              type.measure = "auc",
+                              nfolds = 4,
+                              thresh = 1e-3,
+                              maxit = 1e3)
+print(difftime(Sys.time(), t1, units = 'sec'))
+print(paste("max AUC =", round(max(glmnet_classifier4$cvm), 4)))
+plot(glmnet_classifier4)
+print(glmnet_classifier4)
+
+#Testing
+plot(glmnet_classifier4)
+print(paste("max AUC =", round(max(glmnet_classifier4$cvm), 4)))
+
+preds4 = predict(glmnet_classifier4, dtm_test_tfidf, type = "response", s = "lambda.min")
+
+#Evaluate model performance
+#Create a prediction object
+prediction4 = prediction(preds4, testing$upvotes_classes1)
+
+##Cross validation deviance on training data shd be approximately same as deviance on test data##
+
+#infer True postive and false positve rates
+perf = performance(prediction4, measure = "tpr", x.measure = "fpr")
+ 
+#accuracy and area under the curve
+acc = performance(prediction4, measure = "acc")
+auc = performance(prediction4, measure = "auc")
+
+#Plot accuracy at different cutoffs
+plot(acc,main="TfIdf ModelAccuracy",col="orange",lwd=3)
+grid()
+
+#The model’s accuracy at cutoff 0.5 is approximately 0.57
+
+roc.data = data.frame(fpr=unlist(perf@x.values),
+                       tpr=unlist(perf@y.values))
+ggplot(roc.data, aes(x=fpr, ymin=0, ymax=tpr)) +
+    geom_ribbon(alpha=0.8) +
+    geom_line(aes(y=tpr)) +
+    geom_abline(slope=1, intercept=0, linetype='dashed') +
+    ggtitle("ROC Curve") +
+    ylab('True Positive Rate') +
+    xlab('False Positive Rate')
+
+coef_mat = as.matrix(coef(glmnet_classifier4, s="lambda.min"))
+coef_mat = coef_mat[order(coef_mat),]
+
+glmnet:::auc((as.numeric(testing$upvotes_classes1)), preds4)
+test_result<-data.frame(cbind(testing$upvotes_classes1,ifelse(preds4>0.68,1,0)))
+confusionMatrix(test_result$V1,test_result$X1)
 ```
